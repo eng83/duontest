@@ -15,9 +15,9 @@
   <style>
     /* ── 공통 레이아웃 ── */
     .hub {
-      max-width: 960px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 48px 20px 60px;
+      padding: 48px 32px 60px;
     }
 
     .hub-header {
@@ -88,7 +88,7 @@
     [data-view="grid"]     .tool-grid    { display: grid; }
 
     .tool-grid {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 20px;
     }
     [data-view="grid"] .tool-card {
@@ -100,8 +100,10 @@
       color: inherit;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       border: 1px solid transparent;
+      aspect-ratio: 1;
+      overflow: hidden;
       transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
     }
     [data-view="grid"] .tool-card:hover {
@@ -111,6 +113,12 @@
     }
     [data-view="grid"] .tool-card:active { transform: translateY(-1px); }
     [data-view="grid"] .tool-icon { font-size: 2rem; line-height: 1; }
+    [data-view="grid"] .tool-desc {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
     /* ════════════════════════════════
        캐러셀 뷰
@@ -256,9 +264,13 @@
     }
 
     /* ── 반응형 ── */
+    @media (max-width: 900px) {
+      .tool-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 700px) {
       .hub { padding: 32px 16px 40px; }
       .hub-title { font-size: 1.35rem; }
+      .tool-grid { grid-template-columns: repeat(2, 1fr); }
       [data-view="carousel"] .tool-card  { width: 260px; }
       [data-view="carousel"] .tool-card[data-pos="left"]  { transform: translateX(-280px) scale(0.8); }
       [data-view="carousel"] .tool-card[data-pos="right"] { transform: translateX(280px) scale(0.8); }

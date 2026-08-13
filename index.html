@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Tools</title>
+  <script>(function(){
+    var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+    document.documentElement.dataset.theme=t;
+    var v=localStorage.getItem('wt-view')||'grid';
+    document.documentElement.dataset.view=v;
+  })();</script>
+  <link rel="stylesheet" href="./shared/css/common.css">
+  <script src="./shared/js/theme.js" defer></script>
+  <style>
+    /* ── 공통 레이아웃 ── */
+    .hub {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 20px 60px;
+    }
+
+    .hub-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+    .hub-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-text-heading);
+      margin-bottom: 6px;
+    }
+    .hub-subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-label);
+    }
+    .hub-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .view-toggle {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-label);
+      font-size: 1.1rem;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .view-toggle:hover {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+    }
+
+    /* ── 카드 공통 ── */
+    .tool-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-text-heading);
+    }
+    .tool-desc {
+      font-size: 0.85rem;
+      color: var(--color-text-label);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .tool-link {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-top: 4px;
+    }
+
+    /* ════════════════════════════════
+       그리드 뷰
+    ════════════════════════════════ */
+    [data-view="carousel"] .tool-grid    { display: none; }
+    [data-view="grid"]     .tool-grid    { display: grid; }
+
+    .tool-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    [data-view="grid"] .tool-card {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid transparent;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    [data-view="grid"] .tool-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      border-color: var(--color-border-subtle);
+    }
+    [data-view="grid"] .tool-card:active { transform: translateY(-1px); }
+    [data-view="grid"] .tool-icon { font-size: 2rem; line-height: 1; }
+
+    /* ════════════════════════════════
+       캐러셀 뷰
+    ════════════════════════════════ */
+    [data-view="grid"]     .carousel-outer { display: none; }
+    [data-view="carousel"] .carousel-outer { display: block; }
+
+    [data-view="carousel"] body { overflow-x: hidden; }
+
+    .carousel-wrapper {
+      position: relative;
+      width: 100%;
+      padding: 48px 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .carousel-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 320px;
+      position: relative;
+    }
+    [data-view="carousel"] .tool-card {
+      position: absolute;
+      width: 300px;
+      background: var(--color-card);
+      border-radius: 16px;
+      box-shadow: var(--shadow-card);
+      padding: 36px 32px 28px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border: 1px solid var(--color-border-subtle);
+      cursor: pointer;
+      transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94),
+                  opacity 0.45s ease,
+                  box-shadow 0.45s ease,
+                  filter 0.45s ease;
+      user-select: none;
+    }
+    [data-view="carousel"] .tool-card[data-pos="center"] {
+      transform: translateX(0) scale(1);
+      opacity: 1; z-index: 10;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+      pointer-events: auto;
+    }
+    [data-view="carousel"] .tool-card[data-pos="center"]:hover {
+      box-shadow: 0 20px 56px rgba(0,0,0,0.2);
+      transform: translateX(0) scale(1.03);
+    }
+    [data-view="carousel"] .tool-card[data-pos="left"] {
+      transform: translateX(-340px) scale(0.82);
+      opacity: 0.5; z-index: 5; filter: blur(1px); pointer-events: auto; cursor: pointer;
+    }
+    [data-view="carousel"] .tool-card[data-pos="right"] {
+      transform: translateX(340px) scale(0.82);
+      opacity: 0.5; z-index: 5; filter: blur(1px); pointer-events: auto; cursor: pointer;
+    }
+    [data-view="carousel"] .tool-card[data-pos="left"]:hover  { opacity: 0.7; }
+    [data-view="carousel"] .tool-card[data-pos="right"]:hover { opacity: 0.7; }
+    [data-view="carousel"] .tool-card[data-pos="left2"] {
+      transform: translateX(-560px) scale(0.68); opacity: 0; z-index: 1; pointer-events: none;
+    }
+    [data-view="carousel"] .tool-card[data-pos="right2"] {
+      transform: translateX(560px) scale(0.68); opacity: 0; z-index: 1; pointer-events: none;
+    }
+    [data-view="carousel"] .tool-card[data-pos="hidden"] {
+      transform: translateX(0) scale(0.6); opacity: 0; z-index: 0; pointer-events: none;
+    }
+    [data-view="carousel"] .tool-icon { font-size: 2.4rem; line-height: 1; }
+    [data-view="carousel"] .tool-name { font-size: 1.05rem; }
+    [data-view="carousel"] .tool-desc { font-size: 0.84rem; line-height: 1.6; }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      z-index: 20; width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-label);
+      font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    }
+    .carousel-btn:hover {
+      background: var(--color-primary); color: white;
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 14px rgba(74,144,226,0.35);
+    }
+    .carousel-btn:active { transform: translateY(-50%) scale(0.91); }
+    .carousel-btn.prev   { left: calc(50% - 230px); }
+    .carousel-btn.next   { right: calc(50% - 230px); }
+
+    .carousel-footer {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px; padding-bottom: 40px;
+    }
+    .carousel-counter { font-size: 0.8rem; color: var(--color-text-muted); letter-spacing: 0.05em; }
+    .carousel-dots    { display: flex; gap: 8px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--color-border);
+      cursor: pointer; border: none; padding: 0;
+      transition: background 0.2s, width 0.2s, border-radius 0.2s;
+    }
+    .dot.active  { background: var(--color-primary); width: 24px; border-radius: 4px; }
+    .dot:not(.active):hover { background: var(--color-text-muted); }
+    .keyboard-hint { font-size: 0.73rem; color: var(--color-text-muted); }
+    .key-badge {
+      display: inline-block; padding: 1px 6px;
+      border: 1px solid var(--color-border); border-radius: 4px;
+      font-family: var(--font-mono); font-size: 0.7rem;
+      background: var(--color-bg);
+    }
+
+    /* ── 드래그 재정렬 ── */
+    [data-view="grid"] .tool-card { position: relative; }
+    .drag-handle {
+      position: absolute;
+      top: 8px; right: 10px;
+      color: var(--color-border);
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: grab;
+      opacity: 0;
+      transition: opacity 0.15s;
+      user-select: none;
+    }
+    [data-view="grid"] .tool-card:hover .drag-handle { opacity: 1; }
+    [data-view="grid"] .tool-card.dragging { opacity: 0.35; }
+    [data-view="grid"] .tool-card.drag-over {
+      border-color: var(--color-primary) !important;
+      box-shadow: 0 0 0 2px rgba(74,144,226,0.25), 0 6px 18px rgba(0,0,0,0.12);
+      transform: translateY(-3px);
+    }
+
+    /* ── 반응형 ── */
+    @media (max-width: 700px) {
+      .hub { padding: 32px 16px 40px; }
+      .hub-title { font-size: 1.35rem; }
+      [data-view="carousel"] .tool-card  { width: 260px; }
+      [data-view="carousel"] .tool-card[data-pos="left"]  { transform: translateX(-280px) scale(0.8); }
+      [data-view="carousel"] .tool-card[data-pos="right"] { transform: translateX(280px) scale(0.8); }
+      [data-view="carousel"] .tool-card[data-pos="left2"],
+      [data-view="carousel"] .tool-card[data-pos="right2"] { opacity: 0; }
+      .carousel-btn.prev { left: 8px; }
+      .carousel-btn.next { right: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hub">
+    <div class="hub-header">
+      <div>
+        <h1 class="hub-title">Web Tools</h1>
+        <p class="hub-subtitle">개발자를 위한 브라우저 기반 도구 모음</p>
+      </div>
+      <div class="hub-controls">
+        <button class="view-toggle" id="resetOrderBtn" onclick="resetOrder()" title="카드 순서 초기화" style="display:none;">↺</button>
+        <button class="view-toggle" id="viewToggleBtn" onclick="toggleView()" title="레이아웃 전환"></button>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+    </div>
+
+    <!-- 그리드 뷰 -->
+    <div class="tool-grid" id="grid"></div>
+  </div>
+
+  <!-- 캐러셀 뷰 -->
+  <div class="carousel-outer">
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" onclick="move(-1)" title="이전 (←)">&#8592;</button>
+      <div class="carousel-track" id="track"></div>
+      <button class="carousel-btn next" onclick="move(1)" title="다음 (→)">&#8594;</button>
+    </div>
+    <div class="carousel-footer">
+      <div class="carousel-counter" id="counter"></div>
+      <div class="carousel-dots" id="dots"></div>
+      <div class="keyboard-hint">
+        <span class="key-badge">←</span>&nbsp;<span class="key-badge">→</span> 키보드로도 이동
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOOLS = [
+      { icon:'🔑', name:'JWT Parser',            href:'./jwt_parser/jwt_parser.html',
+        desc:'JWT 토큰을 붙여넣으면 Header, Payload, Signature를 즉시 디코딩해 보여줍니다. 만료 시각, 발급자 등 클레임 정보도 한눈에 확인할 수 있습니다.' },
+      { icon:'📄', name:'OpenAPI Converter',      href:'./openapi_converter/openapi_converter.html',
+        desc:'OpenAPI 3.x JSON 스펙의 서버 Host와 경로 Prefix를 일괄 변환합니다. 원본과 변환된 결과를 나란히 비교하고, 바로 다운로드할 수 있습니다.' },
+      { icon:'📊', name:'LLM Gateway 사용량',     href:'./llmgw-usage/llmgw-usage.html',
+        desc:'LLM Gateway API Key로 누적 사용량과 예산 대비 비율을 조회합니다. 자동 새로고침 기능으로 실시간 모니터링도 가능합니다.' },
+      { icon:'🔐', name:'Keycloak Token Issuer',  href:'./keycloak_issuer/keycloak_issuer.html',
+        desc:'개발/운영 Keycloak에서 password grant 방식으로 JWT 토큰을 발급합니다. 발급된 access_token을 JWT Parser로 바로 연동할 수 있습니다.' },
+      { icon:'📡', name:'APIGW Trace Viewer',     href:'./traceLog/trace_viewer_v1.html',
+        desc:'JSON 트레이스 파일을 워터폴 타임라인으로 시각화합니다. 파일을 드래그하거나 선택해 로드하고, 개별 trace를 독립 HTML로 export할 수 있습니다.' },
+      { icon:'🔎', name:'Duplicate File Finder',  href:'./duplicate_checker/duplicate_checker.html',
+        desc:'폴더를 선택하면 SHA-256 해시로 동일한 파일을 찾아냅니다. 중복 그룹은 같은 색상으로 묶어 한눈에 파악할 수 있습니다.' },
+      { icon:'👤', name:'APIGW User 관리',          href:'./apigw_api_mgmt/apigw_user_mgmt.html',
+        desc:'webMethods API Gateway의 사용자를 조회·생성·수정·삭제하고 잠긴 계정을 해제합니다.' },
+      { icon:'⚙️', name:'APIGW API 관리',          href:'./apigw_api_mgmt/apigw_api_mgmt.html',
+        desc:'webMethods API Gateway의 API 목록을 조회하고, OpenAPI 스펙 JSON으로 신규 API를 추가하거나 기존 API를 조회·수정·삭제합니다.' },
+    ];
+
+    const gridEl  = document.getElementById('grid');
+    const trackEl = document.getElementById('track');
+    const dotsEl  = document.getElementById('dots');
+
+    let orderedTools  = [];
+    let carouselCards = [];
+    let current       = 0;
+    let dragSrcIdx    = -1;
+
+    /* ── 순서 저장/불러오기 ── */
+    function loadOrder() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('wt-tools-order') || 'null');
+        if (Array.isArray(saved) && saved.length) {
+          const reordered = saved.map(n => TOOLS.find(t => t.name === n)).filter(Boolean);
+          const missing   = TOOLS.filter(t => !saved.includes(t.name));
+          return [...reordered, ...missing];
+        }
+      } catch {}
+      return [...TOOLS];
+    }
+
+    function saveOrder(tools) {
+      localStorage.setItem('wt-tools-order', JSON.stringify(tools.map(t => t.name)));
+      document.getElementById('resetOrderBtn').style.display = '';
+    }
+
+    function resetOrder() {
+      localStorage.removeItem('wt-tools-order');
+      document.getElementById('resetOrderBtn').style.display = 'none';
+      buildAll([...TOOLS]);
+    }
+
+    /* ── 렌더링 ── */
+    function buildAll(tools) {
+      orderedTools = tools;
+      buildGrid(tools);
+      buildCarousel(tools);
+      render();
+    }
+
+    function buildGrid(tools) {
+      gridEl.innerHTML = '';
+      tools.forEach(t => {
+        const a = document.createElement('a');
+        a.className   = 'tool-card';
+        a.href        = t.href;
+        a.draggable   = true;
+        a.innerHTML   = `
+          <div class="drag-handle" title="드래그하여 순서 변경">⠿</div>
+          <div class="tool-icon">${t.icon}</div>
+          <div class="tool-name">${t.name}</div>
+          <div class="tool-desc">${t.desc}</div>
+          <div class="tool-link">열기 →</div>`;
+        gridEl.appendChild(a);
+      });
+      setupDrag();
+    }
+
+    function buildCarousel(tools) {
+      trackEl.innerHTML = '';
+      dotsEl.innerHTML  = '';
+      current = 0;
+
+      tools.forEach((t, i) => {
+        const a = document.createElement('a');
+        a.className      = 'tool-card';
+        a.href           = t.href;
+        a.dataset.index  = i;
+        a.innerHTML      = `
+          <div class="tool-icon">${t.icon}</div>
+          <div class="tool-name">${t.name}</div>
+          <div class="tool-desc">${t.desc}</div>
+          <div class="tool-link">열기 →</div>`;
+        trackEl.appendChild(a);
+      });
+
+      carouselCards = Array.from(trackEl.querySelectorAll('.tool-card'));
+
+      carouselCards.forEach((_, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'dot' + (i === 0 ? ' active' : '');
+        btn.setAttribute('aria-label', tools[i].name);
+        btn.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(btn);
+      });
+
+      carouselCards.forEach((card, i) => {
+        card.addEventListener('click', e => {
+          if (card.dataset.pos !== 'center') { e.preventDefault(); goTo(i); }
+        });
+      });
+    }
+
+    /* ── 드래그 앤 드롭 (그리드 전용) ── */
+    function setupDrag() {
+      const cards = Array.from(gridEl.querySelectorAll(':scope > .tool-card'));
+
+      cards.forEach((card, i) => {
+        card.addEventListener('dragstart', e => {
+          dragSrcIdx = i;
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', String(i));
+          setTimeout(() => card.classList.add('dragging'), 0);
+        });
+
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          cards.forEach(c => c.classList.remove('drag-over'));
+          dragSrcIdx = -1;
+        });
+
+        card.addEventListener('dragenter', e => {
+          e.preventDefault();
+          if (i !== dragSrcIdx) card.classList.add('drag-over');
+        });
+
+        card.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        });
+
+        card.addEventListener('dragleave', e => {
+          if (!card.contains(e.relatedTarget)) card.classList.remove('drag-over');
+        });
+
+        card.addEventListener('drop', e => {
+          e.preventDefault();
+          if (dragSrcIdx < 0 || dragSrcIdx === i) return;
+          const next = [...orderedTools];
+          const [moved] = next.splice(dragSrcIdx, 1);
+          next.splice(i, 0, moved);
+          saveOrder(next);
+          buildAll(next);
+        });
+      });
+    }
+
+    /* ── 캐러셀 로직 ── */
+    function getPosName(idx) {
+      const total = carouselCards.length;
+      const diff  = (idx - current + total) % total;
+      if (diff === 0)         return 'center';
+      if (diff === 1)         return 'right';
+      if (diff === total - 1) return 'left';
+      if (diff === 2)         return 'right2';
+      if (diff === total - 2) return 'left2';
+      return 'hidden';
+    }
+
+    function render() {
+      const total = carouselCards.length;
+      carouselCards.forEach((card, i) => { card.dataset.pos = getPosName(i); });
+      document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+      document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+    }
+
+    function goTo(index) {
+      const total = carouselCards.length;
+      current = ((index % total) + total) % total;
+      render();
+    }
+    function move(dir) { goTo(current + dir); }
+
+    document.addEventListener('keydown', e => {
+      if (document.documentElement.dataset.view !== 'carousel') return;
+      if (e.key === 'ArrowLeft')  move(-1);
+      if (e.key === 'ArrowRight') move(1);
+    });
+
+    let touchStartX = 0;
+    trackEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    trackEl.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) move(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    /* ── 뷰 전환 ── */
+    const VIEW_ICONS = { grid: '▤', carousel: '❏' };
+
+    function updateViewBtn() {
+      const v   = document.documentElement.dataset.view;
+      const btn = document.getElementById('viewToggleBtn');
+      btn.textContent = v === 'grid' ? VIEW_ICONS.carousel : VIEW_ICONS.grid;
+      btn.title       = v === 'grid' ? '캐러셀 뷰로 전환' : '그리드 뷰로 전환';
+    }
+
+    function toggleView() {
+      const next = document.documentElement.dataset.view === 'grid' ? 'carousel' : 'grid';
+      document.documentElement.dataset.view = next;
+      localStorage.setItem('wt-view', next);
+      updateViewBtn();
+      if (next === 'carousel') render();
+    }
+
+    /* ── 초기화 ── */
+    buildAll(loadOrder());
+    updateViewBtn();
+    if (localStorage.getItem('wt-tools-order')) {
+      document.getElementById('resetOrderBtn').style.display = '';
+    }
+    sessionStorage.setItem('wt-home', 'index.html');
+  </script>
+</body>
+</html>

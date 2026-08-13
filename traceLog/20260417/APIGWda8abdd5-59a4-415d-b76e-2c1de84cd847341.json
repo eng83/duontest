@@ -1,0 +1,700 @@
+{
+  "APIGW:da8abdd5-59a4-415d-b76e-2c1de84cd847:341" : [ {
+    "spanId" : "376e12ab",
+    "parentId" : "root",
+    "prevSpanId" : null,
+    "startTime" : 6963377144394889,
+    "endTime" : 6963377150231341,
+    "startDate" : 1776384184816,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "aa850096",
+    "trace" : {
+      "type" : "clientRequestResponse",
+      "request" : {
+        "headers" : {
+          "User-Agent" : "Grafana k6/1.7.0",
+          "Host" : "10.100.36.239:7111"
+        },
+        "url" : "https://10.100.36.241:7111/gateway/tt48_api_authorization/1.0/menu/v1/SysMng.Search",
+        "method" : "GET",
+        "resourcePath" : "/menu/v1/SysMng.Search",
+        "queryParameters" : {
+          "APP_ID" : "ITGC"
+        },
+        "payload" : "",
+        "payloadMimeType" : "NOCONTENT"
+      },
+      "response" : {
+        "payload" : "[{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"IGCSY001\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-itgc.wdworker.hhi.co.kr/UI\",\"INIT_CLASS\":null,\"INIT_MODULE\":null,\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2026-02-02T06:11:06.000Z\",\"INSERT_USER_ID\":\"오형석 책임매니저\",\"KEYSTRING\":\"ITGCIGCSY001\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"IGCSY001\",\"SYS_NM\":\"sdfsdfsdf\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2026-02-02T06:11:06.000Z\",\"UPDATE_USER_ID\":\"오형석 책임매니저\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY001\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.MenuManage.UI.ZInitSystem\",\"INIT_MODULE\":\"WdxPlatform.MenuManage.UI.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY001\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY001\",\"SYS_NM\":\"메뉴 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2023-09-12T07:17:32.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY002\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.SystemDeploy.Core.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.SystemDeploy.Core.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY002\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY002\",\"SYS_NM\":\"배포 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-23T23:06:57.000Z\",\"UPDATE_USER_ID\":\"이준철 \"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY003\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.ServiceCatalog.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.ServiceCatalog.UI.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2024-04-05T01:24:51.000Z\",\"INSERT_USER_ID\":\"오형석 책임매니저\",\"KEYSTRING\":\"ITGCWDXSY003\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY003\",\"SYS_NM\":\"서비스카탈로그\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-17T07:06:33.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY004\",\"COMP_CD\":\"1000\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.MetaInfo.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.MetaInfo.UI.dll\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2024-04-05T07:44:47.000Z\",\"INSERT_USER_ID\":\"오형석 책임매니저\",\"KEYSTRING\":\"ITGCWDXSY004\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\"XF20\",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY004\",\"SYS_NM\":\"데이터 플랫폼 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-17T07:06:33.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY005\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.ServiceAnalysis.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.ServiceAnalysis.UI.dll\",\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2023-10-17T05:58:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY005\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY005\",\"SYS_NM\":\"서비스 분석 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-17T07:06:33.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY006\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.ITGC.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.ITGC.UI.dll\",\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY006\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY006\",\"SYS_NM\":\"회계감사대응 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2023-09-12T07:17:32.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY007\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":null,\"INIT_MODULE\":null,\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY007\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY007\",\"SYS_NM\":\"Self Development Workbench\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-02-27T07:14:48.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY008\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.Scheduler.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.Scheduler.UI.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY008\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY008\",\"SYS_NM\":\"스케줄러 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2023-09-12T07:17:32.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY009\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.AccsLimt.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.AccsLimt.UI.dll\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-11-14T01:48:25.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY009\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY009\",\"SYS_NM\":\"접근제한 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-02-19T02:02:06.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"}]",
+        "payloadMimeType" : "application/json",
+        "headers" : {
+          "Transfer-Encoding" : "chunked",
+          "X-Request-Id" : "b865af14d8a9deee6c8a7f6b3a5de76c",
+          "Content-Disposition" : "inline;filename=f.txt",
+          "Content-Type" : "application/json"
+        },
+        "statusCode" : 200,
+        "statusMessage" : ""
+      },
+      "infoType" : "requestResponseTraceInfo"
+    }
+  }, {
+    "spanId" : "78c34ed5",
+    "parentId" : "aa850096",
+    "prevSpanId" : null,
+    "startTime" : 6963377144716228,
+    "endTime" : 6963377150108965,
+    "startDate" : 1776384184817,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "041b66d9",
+    "trace" : {
+      "type" : "MediatorHttpHandler",
+      "input" : { },
+      "output" : {
+        "insequence" : true,
+        "outsequence" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "f6cfecbb",
+    "parentId" : "041b66d9",
+    "prevSpanId" : null,
+    "startTime" : 6963377144727029,
+    "endTime" : 6963377150071240,
+    "startDate" : 1776384184817,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "ffda45ca",
+    "trace" : {
+      "type" : "insequence",
+      "input" : {
+        "stages" : [ "transport", "IAM", "LMT", "requestPayloadProcessing", "routing" ],
+        "order" : "insequence",
+        "serviceType" : "REST"
+      },
+      "output" : {
+        "transport" : true,
+        "IAM" : true,
+        "LMT" : true,
+        "requestPayloadProcessing" : true,
+        "routing" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "05133ae6",
+    "parentId" : "ffda45ca",
+    "prevSpanId" : null,
+    "startTime" : 6963377144739432,
+    "endTime" : 6963377144761996,
+    "startDate" : 1776384184817,
+    "endDate" : 1776384184817,
+    "originalSpanId" : "0edf21c7",
+    "trace" : {
+      "type" : "transport",
+      "input" : {
+        "policies" : [ "entryProtocolPolicy" ]
+      },
+      "output" : {
+        "entryProtocolPolicy" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "06a5078c",
+    "parentId" : "0edf21c7",
+    "prevSpanId" : null,
+    "startTime" : 6963377144745985,
+    "endTime" : 6963377144759460,
+    "startDate" : 1776384184817,
+    "endDate" : 1776384184817,
+    "originalSpanId" : "035ce789",
+    "trace" : {
+      "type" : "entryProtocolPolicy",
+      "input" : {
+        "Transport protocol from client" : "https"
+      },
+      "output" : {
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "812fbf59-4d66-4b82-86be-9e09411e415f",
+          "names" : [ {
+            "value" : "Enable HTTP / HTTPS",
+            "locale" : "en"
+          } ],
+          "templateKey" : "entryProtocolPolicy",
+          "parameters" : [ {
+            "templateKey" : "protocol",
+            "values" : [ "http", "https" ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "a77c97ab",
+    "parentId" : "ffda45ca",
+    "prevSpanId" : "0edf21c7",
+    "startTime" : 6963377144764448,
+    "endTime" : 6963377146914655,
+    "startDate" : 1776384184817,
+    "endDate" : 1776384184819,
+    "originalSpanId" : "48cb914b",
+    "trace" : {
+      "type" : "IAM",
+      "input" : {
+        "policies" : [ "customPolicy" ]
+      },
+      "output" : {
+        "customPolicy" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "51f4fb6b",
+    "parentId" : "48cb914b",
+    "prevSpanId" : null,
+    "startTime" : 6963377144766251,
+    "endTime" : 6963377146913061,
+    "startDate" : 1776384184817,
+    "endDate" : 1776384184819,
+    "originalSpanId" : "31988dab",
+    "trace" : {
+      "type" : "customPolicy",
+      "input" : {
+        "Transport Protocol" : "http",
+        "transformationConfiguration" : {
+          "customContextVariables" : {
+            "isAllowed" : "true"
+          }
+        }
+      },
+      "output" : {
+        "Condition Evaluation Result" : "NONE",
+        "isHeadersModified" : false,
+        "isPayloadModified" : false,
+        "isCustomVariablesModified" : true,
+        "isQueryModified" : false,
+        "isPathModified" : false,
+        "isHttpMethodModified" : false,
+        "transformationConfiguration" : {
+          "customContextVariables" : {
+            "isAllowed" : "true"
+          }
+        },
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "a8bde4b2-b275-44ec-b534-f3b9a191574c",
+          "names" : [ {
+            "value" : "Custom Extension",
+            "locale" : "en"
+          } ],
+          "templateKey" : "customPolicy",
+          "parameters" : [ {
+            "templateKey" : "transformationConditions",
+            "parameters" : [ {
+              "templateKey" : "logicalConnector",
+              "values" : [ "OR" ]
+            } ]
+          }, {
+            "templateKey" : "customExtensionAction",
+            "values" : [ "customAction" ]
+          }, {
+            "templateKey" : "customExtensionType",
+            "values" : [ "externalCallout" ]
+          }, {
+            "templateKey" : "externalEndpoint",
+            "parameters" : [ {
+              "templateKey" : "endpointUri",
+              "values" : [ "http://10.100.45.78:9256/api/xc90/authorize" ]
+            }, {
+              "templateKey" : "externalEndpointMethod",
+              "values" : [ "POST" ]
+            }, {
+              "templateKey" : "connectTimeout",
+              "values" : [ "1" ]
+            }, {
+              "templateKey" : "readTimeout",
+              "values" : [ "1" ]
+            } ]
+          }, {
+            "templateKey" : "customExtensionRequestProcessing",
+            "parameters" : [ {
+              "templateKey" : "requestPayload",
+              "values" : [ "{\r\n    \"user_id\": \"${request.headers.user-agent}\",\r\n    \"source\": \"${request.path}\",\r\n    \"api\": \"${inboundRequestURI}\",\r\n    \"method\": \"${request.httpMethod}\" \r\n\r\n}\r\n" ]
+            } ]
+          }, {
+            "templateKey" : "mashupHeaderTransformation",
+            "parameters" : [ {
+              "templateKey" : "useIncomingHeaders",
+              "values" : [ "false" ]
+            }, {
+              "templateKey" : "customHeaders",
+              "parameters" : [ {
+                "templateKey" : "headerName",
+                "values" : [ "Content-Type" ]
+              }, {
+                "templateKey" : "headerValue",
+                "values" : [ "application/json" ]
+              } ]
+            } ]
+          }, {
+            "templateKey" : "customExtensionResponseProcessing",
+            "parameters" : [ {
+              "templateKey" : "copyEntireResponse",
+              "values" : [ "false" ]
+            }, {
+              "templateKey" : "abortInCaseOfFailure",
+              "values" : [ "false" ]
+            }, {
+              "templateKey" : "responsePayloadMap",
+              "parameters" : [ {
+                "templateKey" : "responseFromCustomPolicyExpression",
+                "values" : [ "${isAllowed}" ]
+              }, {
+                "templateKey" : "targetPayloadExpression",
+                "values" : [ "${response[customExtension].payload.jsonPath[$.allowed]}" ]
+              } ]
+            } ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "bf6d34db",
+    "parentId" : "31988dab",
+    "prevSpanId" : null,
+    "startTime" : 6963377145017638,
+    "endTime" : 6963377146828667,
+    "startDate" : 1776384184817,
+    "endDate" : 1776384184819,
+    "originalSpanId" : "6bbf82aa",
+    "trace" : {
+      "type" : "CUSTOM_POLICY_EXTERNAL_CALLOUT",
+      "request" : {
+        "method" : "POST",
+        "externalURL" : "http://10.100.45.78:9256/api/xc90/authorize",
+        "resourcePath" : null,
+        "headers" : {
+          "Content-Type" : "application/json"
+        },
+        "queryParameters" : { },
+        "payload" : "{\r\n    \"user_id\": \"Grafana k6/1.7.0\",\r\n    \"source\": \"/menu/v1/SysMng.Search\",\r\n    \"api\": \"/api/authorization_tt48/menu/v1/SysMng.Search?APP_ID=ITGC\",\r\n    \"method\": \"GET\" \r\n\r\n}\r\n",
+        "payloadMimeType" : "application/json"
+      },
+      "response" : {
+        "statusCode" : 200,
+        "statusMessage" : "",
+        "headers" : {
+          "Transfer-Encoding" : "chunked",
+          "X-Request-Id" : "4ea59265-0be6-4b20-860c-94c7ad14ad3f",
+          "Date" : "Fri, 17 Apr 2026 00:03:04 GMT",
+          "Content-Type" : "application/json"
+        },
+        "payload" : "{\"allowed\":true,\"matched_pattern\":null,\"latency_ms\":0.02}",
+        "payloadMimeType" : "application/json"
+      },
+      "infoType" : "requestResponseTraceInfo"
+    }
+  }, {
+    "spanId" : "6cb06598",
+    "parentId" : "ffda45ca",
+    "prevSpanId" : "48cb914b",
+    "startTime" : 6963377146923914,
+    "endTime" : 6963377146927787,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184819,
+    "originalSpanId" : "12b6a071",
+    "trace" : {
+      "type" : "LMT",
+      "input" : {
+        "policies" : [ ]
+      },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "445c24a5",
+    "parentId" : "ffda45ca",
+    "prevSpanId" : "12b6a071",
+    "startTime" : 6963377146928757,
+    "endTime" : 6963377146929402,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184819,
+    "originalSpanId" : "f1dbb2af",
+    "trace" : {
+      "type" : "requestPayloadProcessing",
+      "input" : {
+        "policies" : [ ]
+      },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "303c1ef0",
+    "parentId" : "ffda45ca",
+    "prevSpanId" : "f1dbb2af",
+    "startTime" : 6963377146930580,
+    "endTime" : 6963377150069623,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "b3db28b2",
+    "trace" : {
+      "type" : "routing",
+      "input" : {
+        "policies" : [ "callbackURLReplacer", "customHttpHeaders", "contextBasedRouting" ]
+      },
+      "output" : {
+        "callbackURLReplacer" : true,
+        "customHttpHeaders" : true,
+        "contextBasedRouting" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "b1ce5ad2",
+    "parentId" : "b3db28b2",
+    "prevSpanId" : null,
+    "startTime" : 6963377146935174,
+    "endTime" : 6963377146937602,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184819,
+    "originalSpanId" : "f3ebadaa",
+    "trace" : {
+      "type" : "callbackURLReplacer",
+      "input" : { },
+      "output" : {
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "callbackURLReplacer",
+          "names" : [ {
+            "value" : "Default Callback URL Replacer Action for API ",
+            "locale" : "영어"
+          } ],
+          "templateKey" : "callbackURLReplacer",
+          "parameters" : [ ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "63ef2ee6",
+    "parentId" : "b3db28b2",
+    "prevSpanId" : "f3ebadaa",
+    "startTime" : 6963377146938610,
+    "endTime" : 6963377146951985,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184819,
+    "originalSpanId" : "730ec648",
+    "trace" : {
+      "type" : "customHttpHeaders",
+      "input" : {
+        "headers" : {
+          "User-Agent" : "Grafana k6/1.7.0",
+          "Host" : "10.100.36.239:7111",
+          "Accept" : "application/json",
+          "Content-Type" : "application/x-www-form-urlencoded"
+        }
+      },
+      "output" : {
+        "headers" : {
+          "User-Agent" : "Grafana k6/1.7.0",
+          "Host" : "10.100.36.239:7111",
+          "Accept" : "application/json",
+          "Content-Type" : "application/x-www-form-urlencoded",
+          "x-Gateway-uuid" : "5f1f2f25-4d6c-4934-aaa5-02357b3b4ea5"
+        },
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "fd9b802a-26ea-4fd3-ac7d-8633bc08069b",
+          "names" : [ {
+            "value" : "Custom HTTP Header",
+            "locale" : "en"
+          } ],
+          "templateKey" : "customHttpHeaders",
+          "parameters" : [ {
+            "templateKey" : "header",
+            "parameters" : [ {
+              "templateKey" : "headerKey",
+              "values" : [ "x-Gateway-uuid" ]
+            }, {
+              "templateKey" : "headerValue",
+              "values" : [ "${x-Gateway-uuid}" ]
+            } ]
+          } ],
+          "policyAction" : {
+            "id" : "fd9b802a-26ea-4fd3-ac7d-8633bc08069b",
+            "names" : [ {
+              "value" : "Custom HTTP Header",
+              "locale" : "en"
+            } ],
+            "templateKey" : "customHttpHeaders",
+            "parameters" : [ {
+              "templateKey" : "header",
+              "parameters" : [ {
+                "templateKey" : "headerKey",
+                "values" : [ "x-Gateway-uuid" ]
+              }, {
+                "templateKey" : "headerValue",
+                "values" : [ "${x-Gateway-uuid}" ]
+              } ]
+            } ],
+            "active" : false,
+            "_docType" : "policyactions"
+          },
+          "aliasNames" : [ "x-Gateway-uuid" ],
+          "aliasPresent" : true,
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "9dece253",
+    "parentId" : "b3db28b2",
+    "prevSpanId" : "730ec648",
+    "startTime" : 6963377146952990,
+    "endTime" : 6963377150067983,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "fb287409",
+    "trace" : {
+      "type" : "contextBasedRouting",
+      "input" : { },
+      "output" : {
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "fd6fa642-8cfe-4ce7-af53-c8686bd1834a",
+          "names" : [ {
+            "value" : "Conditional Routing",
+            "locale" : "en"
+          } ],
+          "templateKey" : "contextBasedRouting",
+          "parameters" : [ {
+            "templateKey" : "routeTo",
+            "parameters" : [ {
+              "templateKey" : "endpointUri",
+              "values" : [ "http://10.100.45.78:9256/api/xc90/error" ]
+            }, {
+              "templateKey" : "method",
+              "values" : [ "CUSTOM" ]
+            } ]
+          }, {
+            "templateKey" : "contextRules",
+            "parameters" : [ {
+              "templateKey" : "name",
+              "values" : [ "isAllowed" ]
+            }, {
+              "templateKey" : "transformationConditions",
+              "parameters" : [ {
+                "templateKey" : "logicalConnector",
+                "values" : [ "OR" ]
+              }, {
+                "templateKey" : "transformationCondition",
+                "parameters" : [ {
+                  "templateKey" : "transformationVariable",
+                  "values" : [ "${isAllowed}" ]
+                }, {
+                  "templateKey" : "transformationConditionOperator",
+                  "values" : [ "equalsIgnoreCase" ]
+                }, {
+                  "templateKey" : "transformationConditionValue",
+                  "values" : [ "true" ]
+                } ]
+              } ]
+            }, {
+              "templateKey" : "routeTo",
+              "parameters" : [ {
+                "templateKey" : "endpointUri",
+                "values" : [ "https://dev-xbuilder.hd.com/tt48/${sys:resource_path}" ]
+              }, {
+                "templateKey" : "method",
+                "values" : [ "CUSTOM" ]
+              } ]
+            } ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "3aa9e015",
+    "parentId" : "fb287409",
+    "prevSpanId" : null,
+    "startTime" : 6963377146954866,
+    "endTime" : 6963377150066346,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "15848fcc",
+    "trace" : {
+      "type" : "ContextMediator",
+      "input" : { },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "0594112d",
+    "parentId" : "15848fcc",
+    "prevSpanId" : null,
+    "startTime" : 6963377146957786,
+    "endTime" : 6963377150065263,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "71960374",
+    "trace" : {
+      "type" : "RuleMediator",
+      "input" : {
+        "transformationCondition-1" : {
+          "variable" : "${isAllowed}",
+          "value" : "true",
+          "operator" : "equalsIgnoreCase"
+        },
+        "Alias Values Map" : {
+          "https://dev-xbuilder.hd.com/tt48/" : "https://dev-xbuilder.hd.com/tt48/",
+          "${sys:resource_path}" : "${sys:resource_path}"
+        }
+      },
+      "output" : {
+        "transformationCondition-1" : {
+          "variable" : "true",
+          "value" : "true",
+          "operator" : "equalsIgnoreCase",
+          "isConditionMatch" : "MATCH"
+        },
+        "Result" : "SUCCESS"
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "93999357",
+    "parentId" : "71960374",
+    "prevSpanId" : null,
+    "startTime" : 6963377146982714,
+    "endTime" : 6963377150059966,
+    "startDate" : 1776384184819,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "dc48ba81",
+    "trace" : {
+      "type" : "NATIVE_SERVICE_CALL",
+      "request" : {
+        "payload" : "",
+        "method" : "GET",
+        "externalURL" : "https://dev-xbuilder.hd.com/tt48/menu/v1/SysMng.Search?APP_ID=ITGC",
+        "resourcePath" : "/menu/v1/SysMng.Search",
+        "headers" : {
+          "User-Agent" : "Grafana k6/1.7.0",
+          "Accept" : "application/json",
+          "Content-Type" : "application/x-www-form-urlencoded",
+          "x-Gateway-uuid" : "5f1f2f25-4d6c-4934-aaa5-02357b3b4ea5"
+        },
+        "queryParameters" : {
+          "APP_ID" : "ITGC"
+        },
+        "payloadMimeType" : "NOCONTENT"
+      },
+      "response" : {
+        "statusCode" : 200,
+        "statusMessage" : "",
+        "headers" : {
+          "Transfer-Encoding" : "chunked",
+          "X-Request-Id" : "b865af14d8a9deee6c8a7f6b3a5de76c",
+          "Content-Disposition" : "inline;filename=f.txt",
+          "Connection" : "keep-alive",
+          "Date" : "Fri, 17 Apr 2026 00:03:04 GMT",
+          "Content-Type" : "application/json"
+        },
+        "payload" : "[{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"IGCSY001\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-itgc.wdworker.hhi.co.kr/UI\",\"INIT_CLASS\":null,\"INIT_MODULE\":null,\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2026-02-02T06:11:06.000Z\",\"INSERT_USER_ID\":\"오형석 책임매니저\",\"KEYSTRING\":\"ITGCIGCSY001\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"IGCSY001\",\"SYS_NM\":\"sdfsdfsdf\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2026-02-02T06:11:06.000Z\",\"UPDATE_USER_ID\":\"오형석 책임매니저\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY001\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.MenuManage.UI.ZInitSystem\",\"INIT_MODULE\":\"WdxPlatform.MenuManage.UI.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY001\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY001\",\"SYS_NM\":\"메뉴 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2023-09-12T07:17:32.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY002\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.SystemDeploy.Core.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.SystemDeploy.Core.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY002\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY002\",\"SYS_NM\":\"배포 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-23T23:06:57.000Z\",\"UPDATE_USER_ID\":\"이준철 \"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY003\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.ServiceCatalog.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.ServiceCatalog.UI.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2024-04-05T01:24:51.000Z\",\"INSERT_USER_ID\":\"오형석 책임매니저\",\"KEYSTRING\":\"ITGCWDXSY003\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY003\",\"SYS_NM\":\"서비스카탈로그\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-17T07:06:33.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY004\",\"COMP_CD\":\"1000\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.MetaInfo.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.MetaInfo.UI.dll\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2024-04-05T07:44:47.000Z\",\"INSERT_USER_ID\":\"오형석 책임매니저\",\"KEYSTRING\":\"ITGCWDXSY004\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\"XF20\",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY004\",\"SYS_NM\":\"데이터 플랫폼 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-17T07:06:33.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY005\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.ServiceAnalysis.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.ServiceAnalysis.UI.dll\",\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2023-10-17T05:58:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY005\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY005\",\"SYS_NM\":\"서비스 분석 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-03-17T07:06:33.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY006\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.ITGC.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.ITGC.UI.dll\",\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY006\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY006\",\"SYS_NM\":\"회계감사대응 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2023-09-12T07:17:32.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY007\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":null,\"INIT_MODULE\":null,\"INIT_MODULE_PATH\":null,\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY007\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY007\",\"SYS_NM\":\"Self Development Workbench\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-02-27T07:14:48.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY008\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.Scheduler.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.Scheduler.UI.DLL\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-09-12T07:17:32.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY008\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY008\",\"SYS_NM\":\"스케줄러 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2023-09-12T07:17:32.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"},{\"APP_ID\":\"ITGC\",\"BASE_DIR\":\"WDXSY009\",\"COMP_CD\":\"1004\",\"DEPLOY_SERVER_URL\":\"http://dev-platform.wdworker.hhi.co.kr/ITGC/UI\",\"INIT_CLASS\":\"WdxPlatform.AccsLimt.UI.InitSystem\",\"INIT_MODULE\":\"WdxPlatform.AccsLimt.UI.dll\",\"INIT_MODULE_PATH\":\".\",\"INSERT_DATE\":\"2023-11-14T01:48:25.000Z\",\"INSERT_USER_ID\":\"선미영 차장\",\"KEYSTRING\":\"ITGCWDXSY009\",\"LECYSYS_YN\":\"N\",\"OVERSEE_DIVISION_CD\":\" \",\"RMK\":null,\"SYS_APP_ID\":\"ITGC\",\"SYS_APP_NM\":\"ITGC 시스템\",\"SYS_CD\":\"WDXSY009\",\"SYS_NM\":\"접근제한 관리 시스템\",\"TEST\":\"test\",\"UPDATE_DATE\":\"2025-02-19T02:02:06.000Z\",\"UPDATE_USER_ID\":\"선미영 차장\"}]",
+        "payloadMimeType" : "application/json"
+      },
+      "infoType" : "requestResponseTraceInfo"
+    }
+  }, {
+    "spanId" : "394c9669",
+    "parentId" : "041b66d9",
+    "prevSpanId" : "ffda45ca",
+    "startTime" : 6963377150081674,
+    "endTime" : 6963377150107647,
+    "startDate" : 1776384184822,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "b122d689",
+    "trace" : {
+      "type" : "outsequence",
+      "input" : {
+        "stages" : [ "responseProcessing", "urlRewriterProcessing" ],
+        "order" : "outsequence",
+        "serviceType" : "REST"
+      },
+      "output" : {
+        "responseProcessing" : true,
+        "urlRewriterProcessing" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "e938c6e7",
+    "parentId" : "b122d689",
+    "prevSpanId" : null,
+    "startTime" : 6963377150097585,
+    "endTime" : 6963377150102275,
+    "startDate" : 1776384184822,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "41f16c09",
+    "trace" : {
+      "type" : "responseProcessing",
+      "input" : {
+        "policies" : [ ]
+      },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "b20ba41f",
+    "parentId" : "b122d689",
+    "prevSpanId" : "41f16c09",
+    "startTime" : 6963377150106557,
+    "endTime" : 6963377150107384,
+    "startDate" : 1776384184822,
+    "endDate" : 1776384184822,
+    "originalSpanId" : "5d2ea615",
+    "trace" : {
+      "type" : "urlRewriterProcessing",
+      "input" : {
+        "policies" : [ ]
+      },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  } ]
+}

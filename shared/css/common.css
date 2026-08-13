@@ -1,0 +1,299 @@
+/* ================================================================
+   Web Tools — 공통 디자인 시스템
+   ================================================================ */
+
+/* ── CSS 변수 ── */
+:root {
+  --color-primary:      #4a90e2;
+  --color-success:      #34a853;
+  --color-error:        #d32f2f;
+  --color-error-bg:     #fdecea;
+  --color-error-text:   #c62828;
+  --color-warning:      #e65100;
+  --color-warning-bg:   #fff3e0;
+
+  --color-bg:           #f0f2f5;
+  --color-card:         #ffffff;
+  --color-panel-header: #fafafa;
+
+  --color-text:         #333;
+  --color-text-heading: #1a1a2e;
+  --color-text-label:   #555;
+  --color-text-muted:   #999;
+
+  --color-border:       #d9d9d9;
+  --color-border-subtle:#ebebeb;
+
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ── 리셋 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── 기본 ── */
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ── 앱 컨테이너 ── */
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* ── 제목 ── */
+h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--color-text-heading);
+}
+
+/* ── 네비게이션 바 (도구 페이지 상단 브레드크럼) ── */
+.tool-nav {
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+.tool-nav a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+.tool-nav a:hover { text-decoration: underline; }
+.tool-nav-sep     { color: #ccc; }
+.tool-nav-current { color: var(--color-text-label); }
+
+/* ── 라벨 ── */
+label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--color-text-label);
+  letter-spacing: 0.01em;
+}
+
+/* ── 입력 섹션 카드 ── */
+.input-section {
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ── 텍스트 입력 ── */
+input[type="text"] {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(74,144,226,0.18);
+}
+
+/* ── 텍스트에어리어 ── */
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  resize: vertical;
+  outline: none;
+  color: #222;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(74,144,226,0.18);
+}
+
+/* ── 액션 줄 ── */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* ── 버튼 ── */
+.btn,
+button {
+  padding: 8px 22px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn:hover,  button:hover  { opacity: 0.87; }
+.btn:active, button:active { transform: scale(0.97); }
+.btn:disabled, button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-primary { background: var(--color-primary); color: white; }
+.btn-success { background: var(--color-success); color: white; }
+.btn-ghost   { background: #e8eaed; color: #444; }
+.btn-copy    { background: var(--color-primary); color: white; padding: 4px 14px; font-size: 0.78rem; }
+.btn-copy.copied { background: var(--color-success); }
+
+/* ── 패널 ── */
+.panel {
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-header {
+  background: var(--color-panel-header);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.panel-body {
+  padding: 14px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ── 코드 블록 ── */
+pre {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+.hljs { background: transparent !important; }
+
+/* ── 상태 뱃지 ── */
+.status-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+.status-badge.valid   { background: #e8f5e9; color: #2e7d32; }
+.status-badge.invalid { background: var(--color-error-bg); color: var(--color-error-text); }
+.status-badge.empty   { background: var(--color-bg); color: var(--color-text-muted); }
+
+/* ── 에러 박스 ── */
+.error-box {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--color-error-bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--color-error-text);
+}
+
+/* ================================================================
+   다크 테마
+   ================================================================ */
+
+[data-theme="dark"] {
+  --color-primary:       #6366f1;
+  --color-success:       #4ade80;
+  --color-error:         #f87171;
+  --color-error-bg:      #450a0a;
+  --color-error-text:    #fca5a5;
+  --color-warning:       #fb923c;
+  --color-warning-bg:    #431407;
+
+  --color-bg:            #0f172a;
+  --color-card:          #1e293b;
+  --color-panel-header:  #162032;
+
+  --color-text:          #e2e8f0;
+  --color-text-heading:  #f1f5f9;
+  --color-text-label:    #94a3b8;
+  --color-text-muted:    #64748b;
+
+  --color-border:        #334155;
+  --color-border-subtle: #2d3a4e;
+
+  --shadow-card: 0 1px 6px rgba(0,0,0,0.4);
+}
+
+/* ── 다크 입력 필드 ── */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: #0a1628;
+  color: var(--color-text);
+  border-color: var(--color-border);
+  color-scheme: dark;
+}
+
+/* ── 다크 panel-title ── */
+[data-theme="dark"] .panel-title { color: var(--color-text-label); }
+
+/* ── 다크 btn-ghost ── */
+[data-theme="dark"] .btn-ghost { background: #2d3a4e; color: var(--color-text-label); }
+
+/* ── 다크 상태 뱃지 ── */
+[data-theme="dark"] .status-badge.valid   { background: #052e16; color: #4ade80; }
+[data-theme="dark"] .status-badge.invalid { background: var(--color-error-bg); color: var(--color-error-text); }
+
+/* ── 다크 tool-nav-sep ── */
+[data-theme="dark"] .tool-nav-sep { color: #475569; }
+
+/* ── 테마 토글 버튼 ── */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-label);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 3px 8px;
+  line-height: 1.4;
+  transition: background 0.15s, border-color 0.15s;
+}
+.theme-toggle:hover  { background: var(--color-border-subtle); opacity: 1; }
+.theme-toggle:active { transform: scale(0.95); }

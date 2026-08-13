@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keycloak Token Issuer</title>
+  <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
+  <link rel="stylesheet" href="../shared/libs/github.min.css">
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/libs/vue.global.prod.js"></script>
+  <script src="../shared/libs/highlight.min.js"></script>
+  <script src="../shared/js/proxy-config.js"></script>
+  <script src="../shared/js/theme.js" defer></script>
+  <style>
+    /* ── 환경 선택 ── */
+    .env-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .env-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--color-text-label);
+      background: var(--color-bg);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+    }
+    .env-option input[type="radio"] { display: none; }
+    .env-option.active {
+      border-color: var(--color-primary);
+      background: var(--color-primary);
+      color: white;
+    }
+    .env-option:not(.active):hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    /* ── URL 표시 ── */
+    .url-display {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+    }
+    .url-display label { margin-bottom: 6px; }
+    .url-value {
+      padding: 8px 12px;
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      background: var(--color-bg);
+      word-break: break-all;
+    }
+
+    /* ── 폼 그리드 ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .field { display: flex; flex-direction: column; }
+
+    /* ── 비밀번호 입력 행 ── */
+    .pw-row {
+      display: flex;
+      gap: 8px;
+    }
+    .pw-row input { flex: 1; }
+    .btn-pw-toggle {
+      background: var(--color-border);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-label);
+      cursor: pointer;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── 발급 버튼 ── */
+    .btn-issue {
+      background: var(--color-primary);
+      color: white;
+      padding: 9px 32px;
+      font-size: 0.92rem;
+    }
+    .btn-issue:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    /* ── 스피너 ── */
+    .spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── 결과 패널 그리드 (2열) ── */
+    .result-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* ── 패널 바디 높이 ── */
+    .panel-body { max-height: 50vh; }
+
+    /* ── 토큰 패널 바디: 모노 텍스트 ── */
+    .token-text {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--color-text);
+      word-break: break-all;
+      line-height: 1.6;
+    }
+
+    /* ── 패널 헤더 버튼 그룹 ── */
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── JWT Parser 연동 버튼 ── */
+    .btn-open-parser {
+      background: var(--color-success);
+      color: white;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+    }
+
+    /* ── 토큰 정보 요약 ── */
+    .summary-section {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .summary-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-text-label);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .summary-item {
+      background: #f8f9fa;
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+    }
+    .summary-item .s-key {
+      font-size: 0.73rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+    .summary-item .s-val {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #222;
+      font-family: var(--font-mono);
+      word-break: break-all;
+    }
+
+    /* ── 다크 오버라이드 ── */
+    [data-theme="dark"] .summary-item       { background: #162032; }
+    [data-theme="dark"] .summary-item .s-key{ color: #64748b; }
+    [data-theme="dark"] .summary-item .s-val{ color: var(--color-text); }
+    [data-theme="dark"] .url-value          { background: #0a1628; color: var(--color-text-muted); }
+    [data-theme="dark"] .btn-pw-toggle      { background: #2d3a4e; }
+
+    @media (max-width: 800px) {
+      .form-grid     { grid-template-columns: 1fr; }
+      .result-section{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<nav class="tool-nav">
+  <a href="../index.html">← Web Tools</a>
+  <span class="tool-nav-sep">/</span>
+  <span class="tool-nav-current">Keycloak Token Issuer</span>
+  <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;">🌙</button>
+</nav>
+
+<div id="app">
+  <div class="app">
+    <h1>Keycloak Token Issuer</h1>
+
+    <!-- 입력 섹션 -->
+    <div class="input-section">
+
+      <!-- 환경 선택 -->
+      <div class="env-selector">
+        <label class="env-option" :class="{ active: env === 'dev' }">
+          <input type="radio" v-model="env" value="dev"> 개발
+        </label>
+        <label class="env-option" :class="{ active: env === 'prod' }">
+          <input type="radio" v-model="env" value="prod"> 운영
+        </label>
+      </div>
+
+      <!-- URL 표시 -->
+      <div class="url-display">
+        <label>Endpoint URL</label>
+        <div class="url-value">{{ currentEnv.url }}</div>
+      </div>
+
+      <!-- 자격증명 폼 -->
+      <div class="form-grid">
+        <div class="field">
+          <label>client_id</label>
+          <input type="text" v-model="clientId" placeholder="bff-test-client" />
+        </div>
+        <div class="field">
+          <label>username</label>
+          <input type="text" v-model="username" placeholder="testuser" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label>password</label>
+          <div class="pw-row">
+            <input :type="showPw ? 'text' : 'password'" v-model="password"
+                   placeholder="••••" autocomplete="current-password"
+                   @keydown.enter="issue" />
+            <button class="btn-pw-toggle" @click="showPw = !showPw">
+              {{ showPw ? '숨김' : '표시' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 액션 -->
+      <div class="action-row">
+        <button class="btn btn-issue" @click="issue" :disabled="loading">
+          <span v-if="loading" class="spinner"></span>
+          {{ loading ? '발급 중...' : '발급' }}
+        </button>
+      </div>
+      <div v-if="errorMsg" class="error-box" style="margin-top:12px;">{{ errorMsg }}</div>
+    </div>
+
+    <!-- 결과 섹션 -->
+    <div class="result-section" v-if="response">
+
+      <!-- access_token 패널 -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title" style="color:#7b61ff;">Access Token</span>
+          <div class="panel-actions">
+            <button class="btn-copy" :class="{ copied: copied.token }"
+                    @click="copyText('token', accessToken)">
+              {{ copied.token ? 'Copied!' : 'Copy' }}
+            </button>
+            <button class="btn btn-open-parser" @click="openInJwtParser">
+              JWT Parser →
+            </button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <p class="token-text">{{ accessToken }}</p>
+        </div>
+      </div>
+
+      <!-- 전체 응답 JSON 패널 -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">전체 응답 JSON</span>
+          <button class="btn-copy" :class="{ copied: copied.json }"
+                  @click="copyText('json', responseJson)">
+            {{ copied.json ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+        <div class="panel-body">
+          <pre><code class="language-json" v-html="highlightedJson"></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 토큰 정보 요약 -->
+    <div class="summary-section" v-if="response && summaryItems.length">
+      <div class="summary-title">Token Info</div>
+      <div class="summary-grid">
+        <div class="summary-item" v-for="item in summaryItems" :key="item.key">
+          <div class="s-key">{{ item.key }}</div>
+          <div class="s-val">{{ item.value }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const PROXY_BASE = window.WEB_TOOLS_PROXY || 'http://localhost:3000';
+
+const ENVS = {
+  dev: {
+    label: '개발',
+    url: 'https://auth-dxbuilder.hd.com/realms/bff/protocol/openid-connect/token',
+    clientId: 'bff-test-client',
+    username: 'testuser',
+    password: '1234',
+  },
+  prod: {
+    label: '운영',
+    url: 'https://auth-dxb.hd.com/realms/bff/protocol/openid-connect/token',
+    clientId: 'bff-test-client',
+    username: '',
+    password: '',
+  },
+};
+
+const { createApp, ref, computed, reactive, watch } = Vue;
+
+createApp({
+  setup() {
+    const env      = ref('dev');
+    const clientId = ref('');
+    const username = ref('');
+    const password = ref('');
+    const showPw   = ref(false);
+    const loading  = ref(false);
+    const response = ref(null);
+    const errorMsg = ref('');
+    const copied   = reactive({ token: false, json: false });
+
+    const currentEnv = computed(() => ENVS[env.value]);
+
+    watch(env, key => {
+      const cfg = ENVS[key];
+      clientId.value = cfg.clientId;
+      username.value = cfg.username;
+      password.value = cfg.password;
+      response.value = null;
+      errorMsg.value = '';
+    }, { immediate: true });
+
+    const accessToken = computed(() => response.value?.access_token ?? '');
+    const responseJson = computed(() => response.value ? JSON.stringify(response.value, null, 2) : '');
+    const highlightedJson = computed(() =>
+      responseJson.value ? hljs.highlight(responseJson.value, { language: 'json' }).value : ''
+    );
+
+    const summaryItems = computed(() => {
+      if (!response.value) return [];
+      const r = response.value;
+      const items = [];
+      if (r.token_type)          items.push({ key: 'token_type', value: r.token_type });
+      if (r.expires_in != null)  items.push({ key: 'expires_in', value: formatExpiry(r.expires_in) });
+      if (r.refresh_expires_in != null) items.push({ key: 'refresh_expires_in', value: formatExpiry(r.refresh_expires_in) });
+      if (r.scope)               items.push({ key: 'scope', value: r.scope });
+      if (r.session_state)       items.push({ key: 'session_state', value: r.session_state });
+      return items;
+    });
+
+    function formatExpiry(sec) {
+      if (sec >= 3600) return `${Math.floor(sec / 3600)}h ${Math.floor((sec % 3600) / 60)}m (${sec}s)`;
+      if (sec >= 60)   return `${Math.floor(sec / 60)}m ${sec % 60}s (${sec}s)`;
+      return `${sec}s`;
+    }
+
+    async function issue() {
+      if (loading.value) return;
+      loading.value = true;
+      errorMsg.value = '';
+      response.value = null;
+
+      try {
+        const body = new URLSearchParams({
+          grant_type: 'password',
+          client_id:  clientId.value,
+          username:   username.value,
+          password:   password.value,
+        });
+        const res = await fetch(`${PROXY_BASE}/proxy/keycloak/${env.value}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error_description || data.error || `HTTP ${res.status}`);
+        response.value = data;
+      } catch (e) {
+        if (e.name === 'TypeError' && e.message.includes('fetch')) {
+          errorMsg.value = '프록시 서버에 연결할 수 없습니다. server/ 폴더에서 npm start를 먼저 실행해주세요. (localhost:3000)';
+        } else {
+          errorMsg.value = e.message;
+        }
+      } finally {
+        loading.value = false;
+      }
+    }
+
+    function openInJwtParser() {
+      localStorage.setItem('wt-pending-token', accessToken.value);
+      window.open('../jwt_parser/jwt_parser.html', '_blank');
+    }
+
+    let copyTimers = {};
+    function copyText(key, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        copied[key] = true;
+        clearTimeout(copyTimers[key]);
+        copyTimers[key] = setTimeout(() => { copied[key] = false; }, 1500);
+      });
+    }
+
+    return {
+      env, clientId, username, password, showPw,
+      loading, response, errorMsg, copied,
+      currentEnv, accessToken, responseJson, highlightedJson, summaryItems,
+      issue, openInJwtParser, copyText,
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

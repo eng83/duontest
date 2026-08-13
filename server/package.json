@@ -1,0 +1,16 @@
+{
+  "name": "web-tools-proxy",
+  "version": "1.0.0",
+  "description": "공용 CORS 프록시 서버 (Keycloak, OpenAPI fetch 등)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

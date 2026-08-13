@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JWT Token Parser</title>
+  <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
+  <link rel="stylesheet" href="../shared/libs/github.min.css">
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/libs/vue.global.prod.js"></script>
+  <script src="../shared/libs/highlight.min.js"></script>
+  <script src="../shared/js/theme.js" defer></script>
+  <style>
+    /* ── 입력 헤더 ── */
+    .input-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .input-header label {
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0;
+    }
+
+    /* ── 결과 패널 그리드 (3열) ── */
+    .result-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* ── 패널 타이틀 색상 ── */
+    .panel-title.header-color  { color: #e53935; }
+    .panel-title.payload-color { color: #7b61ff; }
+    .panel-title.sig-color     { color: #2196f3; }
+
+    /* ── 패널 바디 높이 ── */
+    .panel-body { max-height: 55vh; }
+
+    /* ── 만료 경고 ── */
+    .exp-warning {
+      margin-bottom: 10px;
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .exp-warning.expired { background: var(--color-warning-bg); color: var(--color-warning); }
+    .exp-warning.valid   { background: #e8f5e9; color: #2e7d32; }
+
+    /* ── 요약 섹션 ── */
+    .summary-section {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .summary-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-text-label);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .summary-item {
+      background: #f8f9fa;
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+    }
+    .summary-item .key {
+      font-size: 0.73rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+    .summary-item .value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #222;
+      font-family: var(--font-mono);
+      word-break: break-all;
+    }
+    .summary-item .value.expired-val { color: var(--color-warning); }
+    .summary-item .value.valid-val   { color: #2e7d32; }
+
+    /* ── 토큰 입력창 높이 ── */
+    textarea { height: 160px; }
+
+    /* ── 빈 상태 힌트 ── */
+    .empty-hint {
+      color: #bbb;
+      font-size: 0.82rem;
+      font-style: italic;
+    }
+
+    /* ── 다크 오버라이드 ── */
+    [data-theme="dark"] .summary-item        { background: #162032; }
+    [data-theme="dark"] .summary-item .key   { color: #64748b; }
+    [data-theme="dark"] .summary-item .value { color: var(--color-text); }
+    [data-theme="dark"] .empty-hint          { color: #475569; }
+    [data-theme="dark"] .exp-warning.valid   { background: #052e16; color: #4ade80; }
+
+    @media (max-width: 800px) {
+      .result-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<nav class="tool-nav">
+  <a href="../index.html">← Web Tools</a>
+  <span class="tool-nav-sep">/</span>
+  <span class="tool-nav-current">JWT Parser</span>
+  <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;">🌙</button>
+</nav>
+
+<div id="app">
+  <div class="app">
+    <h1>JWT Token Parser</h1>
+
+    <!-- 입력 섹션 -->
+    <div class="input-section">
+      <div class="input-header">
+        <label>JWT Token</label>
+        <span class="status-badge" :class="statusClass">{{ statusText }}</span>
+      </div>
+      <textarea
+        v-model="rawToken"
+        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0..."
+        spellcheck="false"
+      ></textarea>
+      <div class="action-row">
+        <button class="btn-ghost" @click="clearToken">Clear</button>
+      </div>
+      <div v-if="parseError" class="error-box">{{ parseError }}</div>
+    </div>
+
+    <!-- 결과 패널 -->
+    <div class="result-section" v-if="parsed">
+
+      <!-- HEADER -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title header-color">Header</span>
+          <button class="btn-copy" :class="{ copied: copied.header }" @click="copyText('header', parsed.headerJson)">
+            {{ copied.header ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+        <div class="panel-body">
+          <pre><code class="language-json" v-html="highlight(parsed.headerJson)"></code></pre>
+        </div>
+      </div>
+
+      <!-- PAYLOAD -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title payload-color">Payload</span>
+          <button class="btn-copy" :class="{ copied: copied.payload }" @click="copyText('payload', parsed.payloadJson)">
+            {{ copied.payload ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+        <div class="panel-body">
+          <div v-if="expInfo" class="exp-warning" :class="expInfo.expired ? 'expired' : 'valid'">
+            {{ expInfo.expired ? '⚠ Expired' : '✔ Valid' }} — exp: {{ expInfo.formatted }}
+          </div>
+          <pre><code class="language-json" v-html="highlight(parsed.payloadJson)"></code></pre>
+        </div>
+      </div>
+
+      <!-- SIGNATURE -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title sig-color">Signature</span>
+          <button class="btn-copy" :class="{ copied: copied.signature }" @click="copyText('signature', parsed.signature)">
+            {{ copied.signature ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+        <div class="panel-body">
+          <pre style="color:#555;">{{ parsed.signature }}</pre>
+          <p style="margin-top:10px; font-size:0.75rem; color:#aaa;">
+            Signature cannot be verified without the secret key.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 빈 상태 -->
+    <div class="result-section" v-else-if="!rawToken.trim()">
+      <div class="panel" style="grid-column: span 3;">
+        <div class="panel-body" style="padding:30px; text-align:center;">
+          <p class="empty-hint">JWT 토큰을 위에 붙여넣으면 자동으로 파싱됩니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 요약 섹션 -->
+    <div class="summary-section" v-if="parsed && summaryItems.length">
+      <div class="summary-title">Token Info</div>
+      <div class="summary-grid">
+        <div class="summary-item" v-for="item in summaryItems" :key="item.key">
+          <div class="key">{{ item.key }}</div>
+          <div class="value" :class="item.cls">{{ item.value }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed, reactive, onMounted } = Vue;
+
+function decodeBase64url(str) {
+  let s = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  return decodeURIComponent(
+    atob(s).split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')
+  );
+}
+
+function formatDate(ts) {
+  return new Date(ts * 1000).toLocaleString('ko-KR', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+}
+
+createApp({
+  setup() {
+    const rawToken = ref('');
+    const copied = reactive({ header: false, payload: false, signature: false });
+
+    onMounted(() => {
+      const pending = localStorage.getItem('wt-pending-token');
+      if (pending) {
+        rawToken.value = pending;
+        localStorage.removeItem('wt-pending-token');
+      }
+    });
+
+    const parsed = computed(() => {
+      const t = rawToken.value.trim();
+      if (!t) return null;
+      const parts = t.split('.');
+      if (parts.length !== 3) return null;
+      try {
+        const header  = JSON.parse(decodeBase64url(parts[0]));
+        const payload = JSON.parse(decodeBase64url(parts[1]));
+        return {
+          headerJson:  JSON.stringify(header,  null, 2),
+          payloadJson: JSON.stringify(payload, null, 2),
+          signature:   parts[2],
+          payload,
+        };
+      } catch {
+        return null;
+      }
+    });
+
+    const parseError = computed(() => {
+      const t = rawToken.value.trim();
+      if (!t) return null;
+      const parts = t.split('.');
+      if (parts.length !== 3) return `JWT는 점(.)으로 구분된 3개의 파트여야 합니다. (현재 ${parts.length}개)`;
+      try {
+        JSON.parse(decodeBase64url(parts[0]));
+        JSON.parse(decodeBase64url(parts[1]));
+        return null;
+      } catch (e) {
+        return `파싱 오류: ${e.message}`;
+      }
+    });
+
+    const statusClass = computed(() => {
+      if (!rawToken.value.trim()) return 'empty';
+      return parsed.value ? 'valid' : 'invalid';
+    });
+
+    const statusText = computed(() => {
+      if (!rawToken.value.trim()) return 'Waiting';
+      return parsed.value ? 'Valid Format' : 'Invalid';
+    });
+
+    const expInfo = computed(() => {
+      if (!parsed.value) return null;
+      const exp = parsed.value.payload.exp;
+      if (exp == null) return null;
+      return {
+        expired: Date.now() / 1000 > exp,
+        formatted: formatDate(exp),
+      };
+    });
+
+    const summaryItems = computed(() => {
+      if (!parsed.value) return [];
+      const p = parsed.value.payload;
+      const items = [];
+      try {
+        const h = JSON.parse(parsed.value.headerJson);
+        if (h.alg) items.push({ key: 'Algorithm', value: h.alg, cls: '' });
+        if (h.typ) items.push({ key: 'Type', value: h.typ, cls: '' });
+      } catch {}
+      if (p.sub) items.push({ key: 'Subject (sub)', value: p.sub, cls: '' });
+      if (p.iss) items.push({ key: 'Issuer (iss)', value: p.iss, cls: '' });
+      if (p.aud) items.push({ key: 'Audience (aud)', value: Array.isArray(p.aud) ? p.aud.join(', ') : p.aud, cls: '' });
+      if (p.iat) items.push({ key: 'Issued At (iat)', value: formatDate(p.iat), cls: '' });
+      if (p.nbf) items.push({ key: 'Not Before (nbf)', value: formatDate(p.nbf), cls: '' });
+      if (p.exp) {
+        const expired = Date.now() / 1000 > p.exp;
+        items.push({ key: 'Expires At (exp)', value: formatDate(p.exp), cls: expired ? 'expired-val' : 'valid-val' });
+      }
+      if (p.jti) items.push({ key: 'JWT ID (jti)', value: p.jti, cls: '' });
+      return items;
+    });
+
+    function highlight(json) {
+      return hljs.highlight(json, { language: 'json' }).value;
+    }
+
+    function clearToken() {
+      rawToken.value = '';
+    }
+
+    let copyTimers = {};
+    function copyText(key, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        copied[key] = true;
+        clearTimeout(copyTimers[key]);
+        copyTimers[key] = setTimeout(() => { copied[key] = false; }, 1500);
+      });
+    }
+
+    return { rawToken, parsed, parseError, statusClass, statusText, expInfo, summaryItems, copied, highlight, clearToken, copyText };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

@@ -1,0 +1,880 @@
+{
+  "APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356" : [ {
+    "spanId" : "e6c3dc26",
+    "parentId" : "root",
+    "prevSpanId" : "first",
+    "startTime" : 0,
+    "endTime" : 0,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496296,
+    "originalSpanId" : "e6c3dc26",
+    "trace" : {
+      "logs" : [ "2026-07-14 08:48:16 KST [YAI.0101.0018I] (tid=44356) [default][hhilapdtt50][APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356:82912e8a0b00491da609700a676e7d69:e6c3dc26~root~first]  Error occurred while processing the request, Error: com.softwareag.pg.exceptions.PGException:  Native service provider error. Code : 403 " ],
+      "infoType" : "serverLogInfo"
+    },
+    "id" : "379b6391-4cfe-43f9-9234-000023a630a9",
+    "correlationID" : "APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356",
+    "entityId" : "379b6391-4cfe-43f9-9234-000023a630a9",
+    "_docType" : "serverlogtracespans"
+  }, {
+    "spanId" : "276f4eb0",
+    "parentId" : "e6c3dc26",
+    "prevSpanId" : null,
+    "startTime" : 4895987641317667,
+    "endTime" : 4895987651360482,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496295,
+    "originalSpanId" : "1bbffcd5",
+    "trace" : {
+      "type" : "MediatorHttpHandler",
+      "input" : { },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "729da5f4",
+    "parentId" : "1bbffcd5",
+    "prevSpanId" : null,
+    "startTime" : 4895987641326493,
+    "endTime" : 4895987651358986,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496295,
+    "originalSpanId" : "534ec4ff",
+    "trace" : {
+      "type" : "insequence",
+      "input" : {
+        "stages" : [ "transport", "IAM", "LMT", "requestPayloadProcessing", "routing" ],
+        "order" : "insequence",
+        "serviceType" : "REST"
+      },
+      "output" : {
+        "transport" : true,
+        "IAM" : true,
+        "LMT" : true,
+        "requestPayloadProcessing" : true,
+        "routing" : false
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "560c64b1",
+    "parentId" : "534ec4ff",
+    "prevSpanId" : null,
+    "startTime" : 4895987641333558,
+    "endTime" : 4895987641357374,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496285,
+    "originalSpanId" : "fb6952bc",
+    "trace" : {
+      "type" : "transport",
+      "input" : {
+        "policies" : [ "entryProtocolPolicy" ]
+      },
+      "output" : {
+        "entryProtocolPolicy" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "826f3b16",
+    "parentId" : "fb6952bc",
+    "prevSpanId" : null,
+    "startTime" : 4895987641347307,
+    "endTime" : 4895987641355093,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496285,
+    "originalSpanId" : "cd6634d8",
+    "trace" : {
+      "type" : "entryProtocolPolicy",
+      "input" : {
+        "Transport protocol from client" : "https"
+      },
+      "output" : {
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "437db3e1-a55e-41f3-8689-96d3924ba509",
+          "names" : [ {
+            "value" : "Enable HTTP / HTTPS",
+            "locale" : "en"
+          } ],
+          "templateKey" : "entryProtocolPolicy",
+          "parameters" : [ {
+            "templateKey" : "protocol",
+            "values" : [ "http", "https" ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "ae07a886",
+    "parentId" : "534ec4ff",
+    "prevSpanId" : "fb6952bc",
+    "startTime" : 4895987641359861,
+    "endTime" : 4895987641944780,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496286,
+    "originalSpanId" : "af067704",
+    "trace" : {
+      "type" : "IAM",
+      "input" : {
+        "policies" : [ "evaluatePolicy" ]
+      },
+      "output" : {
+        "evaluatePolicy" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "795caed7",
+    "parentId" : "af067704",
+    "prevSpanId" : null,
+    "startTime" : 4895987641363323,
+    "endTime" : 4895987641943846,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496286,
+    "originalSpanId" : "9957bfaf",
+    "trace" : {
+      "type" : "evaluatePolicy",
+      "input" : {
+        "Bearer token from Authorization header" : "Authorization: Bearer *************"
+      },
+      "output" : {
+        "JWT" : {
+          "Identified applications" : [ "prod_keycloak" ],
+          "Result" : "SUCCESS"
+        },
+        "JWT token validation result" : "JWT RSA Authentication successful",
+        "Final identified application" : "prod_keycloak",
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "1f775ba0-e126-4076-b21d-b757fe559db4",
+          "names" : [ {
+            "value" : "Identify & Authorize",
+            "locale" : "en"
+          } ],
+          "templateKey" : "evaluatePolicy",
+          "parameters" : [ {
+            "templateKey" : "logicalConnector",
+            "values" : [ "OR" ]
+          }, {
+            "templateKey" : "allowAnonymous",
+            "values" : [ "false" ]
+          }, {
+            "templateKey" : "triggerPolicyViolationOnMissingAuthorizationHeader",
+            "values" : [ "false" ]
+          }, {
+            "templateKey" : "IdentificationRule",
+            "parameters" : [ {
+              "templateKey" : "applicationLookup",
+              "values" : [ "strict" ]
+            }, {
+              "templateKey" : "identificationType",
+              "values" : [ "jwtClaims" ]
+            } ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "74eea03e",
+    "parentId" : "534ec4ff",
+    "prevSpanId" : "af067704",
+    "startTime" : 4895987641946562,
+    "endTime" : 4895987641947780,
+    "startDate" : 1783986496286,
+    "endDate" : 1783986496286,
+    "originalSpanId" : "a29f76f4",
+    "trace" : {
+      "type" : "LMT",
+      "input" : {
+        "policies" : [ ]
+      },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "c4614b46",
+    "parentId" : "534ec4ff",
+    "prevSpanId" : "a29f76f4",
+    "startTime" : 4895987641950954,
+    "endTime" : 4895987646355599,
+    "startDate" : 1783986496286,
+    "endDate" : 1783986496290,
+    "originalSpanId" : "85039540",
+    "trace" : {
+      "type" : "requestPayloadProcessing",
+      "input" : {
+        "policies" : [ "customPolicy" ]
+      },
+      "output" : {
+        "customPolicy" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "e1b92b6c",
+    "parentId" : "85039540",
+    "prevSpanId" : null,
+    "startTime" : 4895987641956028,
+    "endTime" : 4895987646354358,
+    "startDate" : 1783986496286,
+    "endDate" : 1783986496290,
+    "originalSpanId" : "d5e4388a",
+    "trace" : {
+      "type" : "customPolicy",
+      "input" : {
+        "Transport Protocol" : "https",
+        "transformationConfiguration" : { }
+      },
+      "output" : {
+        "Condition Evaluation Result" : "NONE",
+        "isHeadersModified" : false,
+        "isPayloadModified" : false,
+        "isCustomVariablesModified" : false,
+        "isQueryModified" : false,
+        "isPathModified" : false,
+        "isHttpMethodModified" : false,
+        "transformationConfiguration" : { },
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "cdafc5dd-feca-491f-bc0e-03f0a242c406",
+          "names" : [ {
+            "value" : "Custom Extension",
+            "locale" : "en"
+          } ],
+          "templateKey" : "customPolicy",
+          "parameters" : [ {
+            "templateKey" : "transformationConditions",
+            "parameters" : [ {
+              "templateKey" : "logicalConnector",
+              "values" : [ "OR" ]
+            } ]
+          }, {
+            "templateKey" : "customExtensionAction",
+            "values" : [ "customAction" ]
+          }, {
+            "templateKey" : "customExtensionType",
+            "values" : [ "externalCallout" ]
+          }, {
+            "templateKey" : "externalEndpoint",
+            "parameters" : [ {
+              "templateKey" : "endpointUri",
+              "values" : [ "https://auth-dxbuilder.hd.com/realms/bff/protocol/openid-connect/token" ]
+            }, {
+              "templateKey" : "externalEndpointMethod",
+              "values" : [ "POST" ]
+            }, {
+              "templateKey" : "connectTimeout",
+              "values" : [ "5" ]
+            }, {
+              "templateKey" : "readTimeout",
+              "values" : [ "10" ]
+            } ]
+          }, {
+            "templateKey" : "customExtensionRequestProcessing",
+            "parameters" : [ {
+              "templateKey" : "requestPayload",
+              "values" : [ "" ]
+            } ]
+          }, {
+            "templateKey" : "mashupHeaderTransformation",
+            "parameters" : [ {
+              "templateKey" : "useIncomingHeaders",
+              "values" : [ "false" ]
+            }, {
+              "templateKey" : "customHeaders",
+              "parameters" : [ {
+                "templateKey" : "headerName",
+                "values" : [ "Content-Type" ]
+              }, {
+                "templateKey" : "headerValue",
+                "values" : [ "application/x-www-form-urlencoded" ]
+              } ]
+            } ]
+          }, {
+            "templateKey" : "customExtensionResponseProcessing",
+            "parameters" : [ {
+              "templateKey" : "copyEntireResponse",
+              "values" : [ "false" ]
+            }, {
+              "templateKey" : "abortInCaseOfFailure",
+              "values" : [ "false" ]
+            }, {
+              "templateKey" : "responsePayloadMap",
+              "parameters" : [ {
+                "templateKey" : "responseFromCustomPolicyExpression",
+                "values" : [ "gw_token" ]
+              }, {
+                "templateKey" : "targetPayloadExpression",
+                "values" : [ "$.access_token" ]
+              } ]
+            } ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "2804924a",
+    "parentId" : "d5e4388a",
+    "prevSpanId" : null,
+    "startTime" : 4895987642114169,
+    "endTime" : 4895987646299283,
+    "startDate" : 1783986496286,
+    "endDate" : 1783986496290,
+    "originalSpanId" : "114193b4",
+    "trace" : {
+      "type" : "CUSTOM_POLICY_EXTERNAL_CALLOUT",
+      "request" : {
+        "method" : "POST",
+        "externalURL" : "https://auth-dxbuilder.hd.com/realms/bff/protocol/openid-connect/token",
+        "resourcePath" : null,
+        "headers" : {
+          "Content-Type" : "application/x-www-form-urlencoded"
+        },
+        "queryParameters" : { },
+        "payload" : "{\"appId\":\"AIRCONTROL\",\"appNm\":\"압축에어 제어시스템\",\"appDesc\":\"1\",\"appType\":\"HIWAY\",\"tempAppType\":\"WEB\",\"useYn\":\"Y\",\"itgcYn\":\"N\",\"partnerYn\":\"N\",\"exuseYn\":\"N\",\"domainUrl\":null,\"manualUrl\":null,\"infraId\":\"AIRCONTROL\",\"itCompCd\":\"340\",\"itDeptCd\":\"AAA0\",\"itUserId\":\"UNKNOWN\"}",
+        "payloadMimeType" : "application/x-www-form-urlencoded"
+      },
+      "response" : {
+        "statusCode" : 400,
+        "statusMessage" : "Bad Request",
+        "headers" : {
+          "Referrer-Policy" : "no-referrer",
+          "X-Frame-Options" : "SAMEORIGIN",
+          "Strict-Transport-Security" : "max-age=31536000; includeSubDomains",
+          "Cache-Control" : "no-store",
+          "X-Content-Type-Options" : "nosniff",
+          "Connection" : "keep-alive",
+          "Pragma" : "no-cache",
+          "X-XSS-Protection" : "1; mode=block",
+          "Date" : "Mon, 13 Jul 2026 23:48:16 GMT",
+          "Content-Type" : "application/json"
+        },
+        "payload" : "{\"error\":\"invalid_request\",\"error_description\":\"Missing form parameter: grant_type\"}",
+        "payloadMimeType" : "application/json"
+      },
+      "infoType" : "requestResponseTraceInfo"
+    }
+  }, {
+    "spanId" : "114193b4",
+    "parentId" : "d5e4388a",
+    "prevSpanId" : "first",
+    "startTime" : 0,
+    "endTime" : 0,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496296,
+    "originalSpanId" : "114193b4",
+    "trace" : {
+      "logs" : [ "2026-07-14 08:48:16 KST [YAI.0104.0004I] (tid=44356) [default][hhilapdtt50][APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356:82912e8a0b00491da609700a676e7d69:114193b4~d5e4388a~first][POL:customPolicy]I--->  Native service provider error. Code : 400 " ],
+      "infoType" : "serverLogInfo"
+    },
+    "id" : "2617da71-645e-42a6-a175-5538ba1ee426",
+    "correlationID" : "APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356",
+    "entityId" : "2617da71-645e-42a6-a175-5538ba1ee426",
+    "_docType" : "serverlogtracespans"
+  }, {
+    "spanId" : "84f1c4ce",
+    "parentId" : "534ec4ff",
+    "prevSpanId" : "85039540",
+    "startTime" : 4895987646368708,
+    "endTime" : 4895987651357330,
+    "startDate" : 1783986496290,
+    "endDate" : 1783986496295,
+    "originalSpanId" : "98b1deba",
+    "trace" : {
+      "type" : "routing",
+      "input" : {
+        "policies" : [ "outboundTransportAuthentication", "callbackURLReplacer", "customHttpHeaders", "straightThroughRouting" ]
+      },
+      "output" : {
+        "outboundTransportAuthentication" : true,
+        "callbackURLReplacer" : true,
+        "customHttpHeaders" : true,
+        "straightThroughRouting" : false
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "98b1deba",
+    "parentId" : "534ec4ff",
+    "prevSpanId" : "85039540",
+    "startTime" : 0,
+    "endTime" : 0,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496296,
+    "originalSpanId" : "98b1deba",
+    "trace" : {
+      "logs" : [ "2026-07-14 08:48:16 KST [YAI.0002.9999E] (tid=44356) [default][hhilapdtt50][APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356:82912e8a0b00491da609700a676e7d69:98b1deba~534ec4ff~85039540][POL:straightThroughRouting]  Exception : Exception during mediation: com.softwareag.pg.exceptions.PGException:  Native service provider error. Code : 403 " ],
+      "infoType" : "serverLogInfo"
+    },
+    "id" : "4c74e766-384e-4fdd-b497-f0a4e637ed6c",
+    "correlationID" : "APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356",
+    "entityId" : "4c74e766-384e-4fdd-b497-f0a4e637ed6c",
+    "_docType" : "serverlogtracespans"
+  }, {
+    "spanId" : "a1c41ef5",
+    "parentId" : "98b1deba",
+    "prevSpanId" : null,
+    "startTime" : 4895987646387635,
+    "endTime" : 4895987646395818,
+    "startDate" : 1783986496290,
+    "endDate" : 1783986496290,
+    "originalSpanId" : "1c80283a",
+    "trace" : {
+      "type" : "outboundTransportAuthentication",
+      "input" : {
+        "Bearer token from Authorization header" : ""
+      },
+      "output" : {
+        "Result" : "SUCCESS",
+        "Authorization Header" : "Authorization: Bearer *************"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "9bec1d0f-74a8-490c-a949-7ddc2838c453",
+          "names" : [ {
+            "value" : "Outbound Auth - Transport",
+            "locale" : "en"
+          } ],
+          "templateKey" : "outboundTransportAuthentication",
+          "parameters" : [ {
+            "templateKey" : "transportSecurity",
+            "parameters" : [ {
+              "templateKey" : "authType",
+              "values" : [ "JWT" ]
+            }, {
+              "templateKey" : "authMode",
+              "values" : [ "INCOMING_JWT" ]
+            } ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "3b658f3b",
+    "parentId" : "98b1deba",
+    "prevSpanId" : "1c80283a",
+    "startTime" : 4895987646398464,
+    "endTime" : 4895987646400658,
+    "startDate" : 1783986496290,
+    "endDate" : 1783986496290,
+    "originalSpanId" : "b9b8754f",
+    "trace" : {
+      "type" : "callbackURLReplacer",
+      "input" : { },
+      "output" : {
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "callbackURLReplacer",
+          "names" : [ {
+            "value" : "Default Callback URL Replacer Action for API ",
+            "locale" : "영어"
+          } ],
+          "templateKey" : "callbackURLReplacer",
+          "parameters" : [ ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "6c53f55a",
+    "parentId" : "98b1deba",
+    "prevSpanId" : "b9b8754f",
+    "startTime" : 4895987646401947,
+    "endTime" : 4895987646413460,
+    "startDate" : 1783986496290,
+    "endDate" : 1783986496290,
+    "originalSpanId" : "2694f57c",
+    "trace" : {
+      "type" : "customHttpHeaders",
+      "input" : {
+        "headers" : {
+          "referer" : "https://dev-dxbuilder.hd.com/",
+          "sec-fetch-site" : "same-origin",
+          "X-Request-ID" : "4a70a619-f122-416e-88a1-548f704720a3",
+          "origin" : "https://dev-dxbuilder.hd.com",
+          "X-USER-ID" : "A453587",
+          "X-ORG-CD" : "IW0B,IL01,IK01,AI00,AAA2,AAAA",
+          "Authorization" : "**************",
+          "x-lang" : "ko",
+          "X-JOB-TIT-CD" : "92",
+          "sec-ch-ua-mobile" : "?0",
+          "content-type" : "application/json",
+          "cache-control" : "no-store",
+          "Content-Length" : "281",
+          "X-OFFI-RES-CD" : "62",
+          "X-ASGN-CD" : "IW0B",
+          "sec-fetch-mode" : "cors",
+          "accept-language" : "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+          "cookie" : "SCOUTER=x7ukvj4dje91h0; _ga=GA1.1.1939080790.1781251456; xbuilder.sidebarOpen=true; _ga_M28WTVTBEC=GS2.1.s1783918694$o13$g0$t1783918694$j60$l0$h0; HHIPOLICY=618; GROUPUA=15faa020b26c94657cfa1cc0e5427ebcb7a09ec143a1b87b1734f637edbc744d4da8af488554368776ae4b27c96ceaffb3494aa6600feb444c554c40c014068c825eab66001ee6f6fa8267d4e0a919c4915bc7c462c14b7fcbf6916d8b12b7a9; hhiCookie=id%3d4eeab24a790ee20d%2cname%3d82a26b0bce739baf; GROUPTOKEN=a1e10a0997d9f543ac490d782231a063cc643ff7d25b45adae32a478fab3425fb5c575ce0aef383fb69ac095c3daece0263b8c4d55ab61310c3e5a69fb7421c81c5752355abb2ea9ea22df6c17089879860a4c22d73e8466f7f11ad0deab6525c677846429d5e6080914c82eaf8e3bb05909baba6b2e56e28b2b91ecf56f6f4bc974ed8f9113a50fe8c0e7ff8c4980180361430bb7ad0ff09cc1086d81; hhiDomainToken=c03e75fc3397f8f96d42ed29166de55245c794a086081d371f4c87557c94460606f2682be4eee70977e8cafa73c93ee300f3db64cfed8c9d52ba0ddc3a6c2efd364f7a0cacfc18d67bb366c50c9282d40361430bb7ad0ff09cc1086d; SESSIONID=1783986402.615.22421.498529|13ba91f52eb4c85ffc5e9e96bb2ed05d",
+          "X-COMPANY" : "100",
+          "X-Forwarded-Host" : "dev-dxbuilder.hd.com",
+          "Connection" : "Keep-Alive",
+          "Host" : "dev-apigw-ksoe.hd.com:7111",
+          "X-APP-ID" : "tt48",
+          "priority" : "u=1, i",
+          "X-Forwarded-Port" : "443",
+          "accept" : "application/json, text/plain, */*",
+          "X-USER-ORIGIN" : "1",
+          "sec-ch-ua" : "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+          "ssl-client-verify" : "NONE",
+          "X-AUTHGRP-IDS" : "ADMIN_GRP",
+          "sec-ch-ua-platform" : "\"Windows\"",
+          "X-Forwarded-For" : "10.133.119.144",
+          "X-DEPT-CD" : "IW0B",
+          "X-Forwarded-Scheme" : "https",
+          "accept-encoding" : "gzip, deflate, br, zstd",
+          "X-Forwarded-Server" : "dev-dxbuilder.hd.com",
+          "X-Scheme" : "https",
+          "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+          "sec-fetch-dest" : "empty"
+        }
+      },
+      "output" : {
+        "headers" : {
+          "referer" : "https://dev-dxbuilder.hd.com/",
+          "sec-fetch-site" : "same-origin",
+          "X-Request-ID" : "4a70a619-f122-416e-88a1-548f704720a3",
+          "origin" : "https://dev-dxbuilder.hd.com",
+          "X-USER-ID" : "A453587",
+          "X-ORG-CD" : "IW0B,IL01,IK01,AI00,AAA2,AAAA",
+          "Authorization" : "**************",
+          "x-lang" : "ko",
+          "X-JOB-TIT-CD" : "92",
+          "sec-ch-ua-mobile" : "?0",
+          "content-type" : "application/json",
+          "cache-control" : "no-store",
+          "Content-Length" : "281",
+          "X-OFFI-RES-CD" : "62",
+          "X-ASGN-CD" : "IW0B",
+          "sec-fetch-mode" : "cors",
+          "accept-language" : "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+          "cookie" : "SCOUTER=x7ukvj4dje91h0; _ga=GA1.1.1939080790.1781251456; xbuilder.sidebarOpen=true; _ga_M28WTVTBEC=GS2.1.s1783918694$o13$g0$t1783918694$j60$l0$h0; HHIPOLICY=618; GROUPUA=15faa020b26c94657cfa1cc0e5427ebcb7a09ec143a1b87b1734f637edbc744d4da8af488554368776ae4b27c96ceaffb3494aa6600feb444c554c40c014068c825eab66001ee6f6fa8267d4e0a919c4915bc7c462c14b7fcbf6916d8b12b7a9; hhiCookie=id%3d4eeab24a790ee20d%2cname%3d82a26b0bce739baf; GROUPTOKEN=a1e10a0997d9f543ac490d782231a063cc643ff7d25b45adae32a478fab3425fb5c575ce0aef383fb69ac095c3daece0263b8c4d55ab61310c3e5a69fb7421c81c5752355abb2ea9ea22df6c17089879860a4c22d73e8466f7f11ad0deab6525c677846429d5e6080914c82eaf8e3bb05909baba6b2e56e28b2b91ecf56f6f4bc974ed8f9113a50fe8c0e7ff8c4980180361430bb7ad0ff09cc1086d81; hhiDomainToken=c03e75fc3397f8f96d42ed29166de55245c794a086081d371f4c87557c94460606f2682be4eee70977e8cafa73c93ee300f3db64cfed8c9d52ba0ddc3a6c2efd364f7a0cacfc18d67bb366c50c9282d40361430bb7ad0ff09cc1086d; SESSIONID=1783986402.615.22421.498529|13ba91f52eb4c85ffc5e9e96bb2ed05d",
+          "X-COMPANY" : "100",
+          "X-Forwarded-Host" : "dev-dxbuilder.hd.com",
+          "Connection" : "Keep-Alive",
+          "Host" : "dev-apigw-ksoe.hd.com:7111",
+          "X-APP-ID" : "tt48",
+          "X-From-API-GW" : "true",
+          "priority" : "u=1, i",
+          "X-Forwarded-Port" : "443",
+          "accept" : "application/json, text/plain, */*",
+          "X-USER-ORIGIN" : "1",
+          "sec-ch-ua" : "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+          "ssl-client-verify" : "NONE",
+          "X-AUTHGRP-IDS" : "ADMIN_GRP",
+          "sec-ch-ua-platform" : "\"Windows\"",
+          "X-Forwarded-For" : "10.133.119.144",
+          "X-DEPT-CD" : "IW0B",
+          "X-Forwarded-Scheme" : "https",
+          "accept-encoding" : "gzip, deflate, br, zstd",
+          "X-Forwarded-Server" : "dev-dxbuilder.hd.com",
+          "X-Scheme" : "https",
+          "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+          "sec-fetch-dest" : "empty"
+        },
+        "Result" : "SUCCESS"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "2d129465-20a1-49d6-990c-3556df1f5d7d",
+          "names" : [ {
+            "value" : "Custom HTTP Header",
+            "locale" : "en"
+          } ],
+          "templateKey" : "customHttpHeaders",
+          "parameters" : [ {
+            "templateKey" : "header",
+            "parameters" : [ {
+              "templateKey" : "headerKey",
+              "values" : [ "X-From-API-GW" ]
+            }, {
+              "templateKey" : "headerValue",
+              "values" : [ "true" ]
+            } ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "9913f246",
+    "parentId" : "98b1deba",
+    "prevSpanId" : "2694f57c",
+    "startTime" : 4895987646415812,
+    "endTime" : 4895987651297898,
+    "startDate" : 1783986496290,
+    "endDate" : 1783986496295,
+    "originalSpanId" : "0bf5c760",
+    "trace" : {
+      "type" : "straightThroughRouting",
+      "input" : {
+        "Alias Values Map" : {
+          "https://dev-dxbuilder.hd.com/api/tt48/secured/" : "https://dev-dxbuilder.hd.com/api/tt48/secured/",
+          "${sys:resource_path}" : "${sys:resource_path}"
+        }
+      },
+      "output" : {
+        "Result" : "FAILURE",
+        "Reason" : " Native service provider error. Code : 403"
+      },
+      "config" : {
+        "policyConfig" : {
+          "id" : "ea44d350-5aa3-4b05-bb96-efc0cc3ec7f5",
+          "names" : [ {
+            "value" : "Straight Through Routing",
+            "locale" : "en"
+          } ],
+          "templateKey" : "straightThroughRouting",
+          "parameters" : [ {
+            "templateKey" : "endpointUri",
+            "values" : [ "https://dev-dxbuilder.hd.com/api/tt48/secured/${sys:resource_path}" ]
+          }, {
+            "templateKey" : "method",
+            "values" : [ "CUSTOM" ]
+          } ],
+          "active" : false,
+          "_docType" : "policyactions"
+        }
+      },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "c31855c5",
+    "parentId" : "0bf5c760",
+    "prevSpanId" : null,
+    "startTime" : 4895987646426713,
+    "endTime" : 4895987651293108,
+    "startDate" : 1783986496290,
+    "endDate" : 1783986496295,
+    "originalSpanId" : "7e108288",
+    "trace" : {
+      "type" : "NATIVE_SERVICE_CALL",
+      "request" : {
+        "payload" : "{\"appId\":\"AIRCONTROL\",\"appNm\":\"압축에어 제어시스템\",\"appDesc\":\"1\",\"appType\":\"HIWAY\",\"tempAppType\":\"WEB\",\"useYn\":\"Y\",\"itgcYn\":\"N\",\"partnerYn\":\"N\",\"exuseYn\":\"N\",\"domainUrl\":null,\"manualUrl\":null,\"infraId\":\"AIRCONTROL\",\"itCompCd\":\"340\",\"itDeptCd\":\"AAA0\",\"itUserId\":\"UNKNOWN\"}",
+        "method" : "PUT",
+        "externalURL" : "https://dev-dxbuilder.hd.com/api/tt48/secured/v1/apps/AIRCONTROL",
+        "resourcePath" : "/v1/apps/{appId}",
+        "headers" : {
+          "referer" : "https://dev-dxbuilder.hd.com/",
+          "sec-fetch-site" : "same-origin",
+          "X-Request-ID" : "4a70a619-f122-416e-88a1-548f704720a3",
+          "origin" : "https://dev-dxbuilder.hd.com",
+          "X-USER-ID" : "A453587",
+          "X-ORG-CD" : "IW0B,IL01,IK01,AI00,AAA2,AAAA",
+          "Authorization" : "**************",
+          "x-lang" : "ko",
+          "X-JOB-TIT-CD" : "92",
+          "sec-ch-ua-mobile" : "?0",
+          "content-type" : "application/json",
+          "cache-control" : "no-store",
+          "Content-Length" : "281",
+          "X-OFFI-RES-CD" : "62",
+          "X-ASGN-CD" : "IW0B",
+          "sec-fetch-mode" : "cors",
+          "accept-language" : "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+          "cookie" : "********************************",
+          "X-COMPANY" : "100",
+          "X-Forwarded-Host" : "dev-dxbuilder.hd.com",
+          "X-APP-ID" : "tt48",
+          "X-From-API-GW" : "true",
+          "priority" : "u=1, i",
+          "X-Forwarded-Port" : "443",
+          "accept" : "application/json, text/plain, */*",
+          "X-USER-ORIGIN" : "1",
+          "sec-ch-ua" : "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+          "ssl-client-verify" : "NONE",
+          "X-AUTHGRP-IDS" : "ADMIN_GRP",
+          "sec-ch-ua-platform" : "\"Windows\"",
+          "X-Forwarded-For" : "10.133.119.144",
+          "X-DEPT-CD" : "IW0B",
+          "X-Forwarded-Scheme" : "https",
+          "accept-encoding" : "gzip, deflate, br, zstd",
+          "X-Forwarded-Server" : "dev-dxbuilder.hd.com",
+          "X-Scheme" : "https",
+          "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+          "sec-fetch-dest" : "empty"
+        },
+        "queryParameters" : { },
+        "payloadMimeType" : "application/json"
+      },
+      "response" : {
+        "payload" : "<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"robots\" content=\"noindex, nofollow\">\n<title>요청 오류 · API Gateway 단계</title>\n<style>\n  body{margin:0;font-family:'HD Hyundai','Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;background:#F3F4F6;color:#48515B;display:flex;align-items:center;justify-content:center;min-height:100vh}\n  .card{background:#fff;max-width:560px;width:90vw;padding:40px;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.08);border-top:5px solid #d97706}\n  .badge{display:inline-block;background:#d97706;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:16px}\n  h1{font-size:20px;margin:0 0 10px;color:#1f2937}\n  p{font-size:14px;line-height:1.6;margin:0 0 16px}\n  .box{background:#FEF3C7;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7}\n  .box b{color:#92400e}\n  .meta{list-style:none;padding:0;margin:16px 0 0;font-size:12px;color:#9aa0a6}\n  .meta li{margin:2px 0;word-break:break-all}\n  a.btn{display:inline-block;margin-top:20px;background:#111827;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px}\n</style>\n</head>\n<body>\n<div class=\"card\">\n  <span class=\"badge\">API Gateway 단계</span>\n  <h1>API Gateway 단계에서 요청이 거부/지연되었습니다</h1>\n  <p>이 오류는 <b>API Gateway(및 그 뒤 백엔드 WAS) 단계</b>에서 발생했습니다.\n     <b>Keycloak(로그인)에서 발급한 토큰 자체는 정상일 수 있습니다.</b></p>\n  <div class=\"box\">\n    · 장애 지점: <b>API Gateway / 백엔드(WAS)</b><br>\n    · 담당: API Gateway 팀<br>\n    · 예: 토큰검증(issuer·audience·JWKS), API Key, 인가, 응답 지연 등.\n  </div>\n  <ul class=\"meta\">\n    <li>상태코드: 403</li>\n    <li>요청경로: /api/tt48/secured/v1/apps/AIRCONTROL</li>\n    <li>요청ID: alV5QLzJLD15HScTqD9uMwAAAFY</li>\n    <li>시각: 2026-07-14 08:48:16</li>\n  </ul>\n  <a class=\"btn\" href=\"/app\">돌아가기</a>\n</div>\n</body>\n</html>\n",
+        "payloadMimeType" : "text/html",
+        "statusCode" : 403,
+        "statusMessage" : "Forbidden",
+        "headers" : {
+          "Transfer-Encoding" : "chunked",
+          "Accept-Ranges" : "bytes",
+          "Cache-Control" : "no-store",
+          "Connection" : "keep-alive",
+          "Vary" : "ssl-client-verify",
+          "Date" : "Mon, 13 Jul 2026 23:48:16 GMT",
+          "Content-Type" : "text/html"
+        }
+      },
+      "infoType" : "requestResponseTraceInfo"
+    }
+  }, {
+    "spanId" : "7e108288",
+    "parentId" : "0bf5c760",
+    "prevSpanId" : "first",
+    "startTime" : 0,
+    "endTime" : 0,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496296,
+    "originalSpanId" : "7e108288",
+    "trace" : {
+      "logs" : [ "2026-07-14 08:48:16 KST [YAI.0104.0004I] (tid=44356) [default][hhilapdtt50][APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356:82912e8a0b00491da609700a676e7d69:7e108288~0bf5c760~first][POL:straightThroughRouting]O--->  Native service provider error. Code : 403 " ],
+      "infoType" : "serverLogInfo"
+    },
+    "id" : "488efc56-529c-4d0f-9ff7-af8b0c76c259",
+    "correlationID" : "APIGW:45d81c6c-8d37-48f3-93dc-da7df6fd5b83:44356",
+    "entityId" : "488efc56-529c-4d0f-9ff7-af8b0c76c259",
+    "_docType" : "serverlogtracespans"
+  }, {
+    "spanId" : "a38c4768",
+    "parentId" : "7e108288",
+    "prevSpanId" : null,
+    "startTime" : 4895987651197567,
+    "endTime" : 4895987651235689,
+    "startDate" : 1783986496295,
+    "endDate" : 1783986496295,
+    "originalSpanId" : "444379fa",
+    "trace" : {
+      "type" : "faultsequence",
+      "input" : {
+        "stages" : [ "responseFaultProcessing" ],
+        "order" : "faultsequence",
+        "serviceType" : "REST"
+      },
+      "output" : {
+        "responseFaultProcessing" : true
+      },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "f7b75fc4",
+    "parentId" : "444379fa",
+    "prevSpanId" : null,
+    "startTime" : 4895987651207899,
+    "endTime" : 4895987651233009,
+    "startDate" : 1783986496295,
+    "endDate" : 1783986496295,
+    "originalSpanId" : "9c4eb70a",
+    "trace" : {
+      "type" : "responseFaultProcessing",
+      "input" : { },
+      "output" : { },
+      "config" : { },
+      "infoType" : "mediatorTraceInfo"
+    }
+  }, {
+    "spanId" : "c0086820",
+    "parentId" : "root",
+    "prevSpanId" : null,
+    "startTime" : 4895987640888544,
+    "endTime" : 4895987651621042,
+    "startDate" : 1783986496285,
+    "endDate" : 1783986496296,
+    "originalSpanId" : "e6c3dc26",
+    "trace" : {
+      "type" : "clientRequestResponse",
+      "request" : {
+        "headers" : {
+          "referer" : "https://dev-dxbuilder.hd.com/",
+          "sec-fetch-site" : "same-origin",
+          "X-Request-ID" : "4a70a619-f122-416e-88a1-548f704720a3",
+          "origin" : "https://dev-dxbuilder.hd.com",
+          "X-USER-ID" : "A453587",
+          "X-ORG-CD" : "IW0B,IL01,IK01,AI00,AAA2,AAAA",
+          "Authorization" : "**************",
+          "x-lang" : "ko",
+          "X-JOB-TIT-CD" : "92",
+          "sec-ch-ua-mobile" : "?0",
+          "content-type" : "application/json",
+          "cache-control" : "no-store",
+          "Content-Length" : "281",
+          "X-OFFI-RES-CD" : "62",
+          "X-ASGN-CD" : "IW0B",
+          "sec-fetch-mode" : "cors",
+          "accept-language" : "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+          "cookie" : "********************************",
+          "X-COMPANY" : "100",
+          "X-Forwarded-Host" : "dev-dxbuilder.hd.com",
+          "Connection" : "Keep-Alive",
+          "Host" : "dev-apigw-ksoe.hd.com:7111",
+          "X-APP-ID" : "tt48",
+          "priority" : "u=1, i",
+          "X-Forwarded-Port" : "443",
+          "accept" : "application/json, text/plain, */*",
+          "X-USER-ORIGIN" : "1",
+          "sec-ch-ua" : "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+          "ssl-client-verify" : "NONE",
+          "X-AUTHGRP-IDS" : "ADMIN_GRP",
+          "sec-ch-ua-platform" : "\"Windows\"",
+          "X-Forwarded-For" : "10.133.119.144",
+          "X-DEPT-CD" : "IW0B",
+          "X-Forwarded-Scheme" : "https",
+          "accept-encoding" : "gzip, deflate, br, zstd",
+          "X-Forwarded-Server" : "dev-dxbuilder.hd.com",
+          "X-Scheme" : "https",
+          "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+          "sec-fetch-dest" : "empty"
+        },
+        "url" : "https://10.100.45.232:7111/gateway/tt48_secured/1.0/v1/apps/AIRCONTROL",
+        "method" : "PUT",
+        "resourcePath" : "/v1/apps/{appId}",
+        "queryParameters" : { },
+        "payload" : "{\"appId\":\"AIRCONTROL\",\"appNm\":\"압축에어 제어시스템\",\"appDesc\":\"1\",\"appType\":\"HIWAY\",\"tempAppType\":\"WEB\",\"useYn\":\"Y\",\"itgcYn\":\"N\",\"partnerYn\":\"N\",\"exuseYn\":\"N\",\"domainUrl\":null,\"manualUrl\":null,\"infraId\":\"AIRCONTROL\",\"itCompCd\":\"340\",\"itDeptCd\":\"AAA0\",\"itUserId\":\"UNKNOWN\"}",
+        "payloadMimeType" : "application/json"
+      },
+      "response" : {
+        "headers" : {
+          "Transfer-Encoding" : "chunked",
+          "Accept-Ranges" : "bytes",
+          "Vary" : "ssl-client-verify",
+          "Cache-Control" : "no-store",
+          "Content-Type" : "text/html"
+        },
+        "statusCode" : 403,
+        "statusMessage" : "Forbidden",
+        "payload" : "<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"robots\" content=\"noindex, nofollow\">\n<title>요청 오류 · API Gateway 단계</title>\n<style>\n  body{margin:0;font-family:'HD Hyundai','Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;background:#F3F4F6;color:#48515B;display:flex;align-items:center;justify-content:center;min-height:100vh}\n  .card{background:#fff;max-width:560px;width:90vw;padding:40px;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.08);border-top:5px solid #d97706}\n  .badge{display:inline-block;background:#d97706;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:16px}\n  h1{font-size:20px;margin:0 0 10px;color:#1f2937}\n  p{font-size:14px;line-height:1.6;margin:0 0 16px}\n  .box{background:#FEF3C7;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7}\n  .box b{color:#92400e}\n  .meta{list-style:none;padding:0;margin:16px 0 0;font-size:12px;color:#9aa0a6}\n  .meta li{margin:2px 0;word-break:break-all}\n  a.btn{display:inline-block;margin-top:20px;background:#111827;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px}\n</style>\n</head>\n<body>\n<div class=\"card\">\n  <span class=\"badge\">API Gateway 단계</span>\n  <h1>API Gateway 단계에서 요청이 거부/지연되었습니다</h1>\n  <p>이 오류는 <b>API Gateway(및 그 뒤 백엔드 WAS) 단계</b>에서 발생했습니다.\n     <b>Keycloak(로그인)에서 발급한 토큰 자체는 정상일 수 있습니다.</b></p>\n  <div class=\"box\">\n    · 장애 지점: <b>API Gateway / 백엔드(WAS)</b><br>\n    · 담당: API Gateway 팀<br>\n    · 예: 토큰검증(issuer·audience·JWKS), API Key, 인가, 응답 지연 등.\n  </div>\n  <ul class=\"meta\">\n    <li>상태코드: 403</li>\n    <li>요청경로: /api/tt48/secured/v1/apps/AIRCONTROL</li>\n    <li>요청ID: alV5QLzJLD15HScTqD9uMwAAAFY</li>\n    <li>시각: 2026-07-14 08:48:16</li>\n  </ul>\n  <a class=\"btn\" href=\"/app\">돌아가기</a>\n</div>\n</body>\n</html>\n",
+        "payloadMimeType" : "text/html"
+      },
+      "infoType" : "requestResponseTraceInfo"
+    }
+  } ]
+}

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duplicate File Finder</title>
+  <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/libs/vue.global.prod.js"></script>
+  <script src="../shared/js/theme.js" defer></script>
+  <style>
+    .app { max-width: 1280px; margin: 0 auto; padding: 0 20px 40px; }
+
+    /* ── 레이아웃 ── */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .main-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── 패널 헤더 카운트 뱃지 ── */
+    .panel-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .count-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--color-primary);
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    /* ── 파일 목록 공통 ── */
+    .file-list {
+      max-height: 560px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      word-break: break-all;
+      line-height: 1.4;
+      border: 1px solid transparent;
+      transition: background 0.1s;
+    }
+    .file-item:hover { background: var(--color-border-subtle); }
+
+    .file-icon {
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .file-path {
+      flex: 1;
+      color: var(--color-text);
+      min-width: 0;
+    }
+    .file-size {
+      flex-shrink: 0;
+      color: var(--color-text-muted);
+      font-size: 0.75rem;
+    }
+
+    /* ── 중복 그룹 ── */
+    .dup-group {
+      margin-bottom: 12px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1.5px solid;
+    }
+    .dup-group-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .dup-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dup-hash {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .dup-count-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .dup-files {
+      padding: 4px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* ── 빈 상태 ── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--color-text-muted);
+      font-size: 0.88rem;
+      line-height: 1.8;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ── 진행률 ── */
+    .progress-wrap {
+      margin: 12px 0 4px;
+    }
+    .progress-bar-track {
+      height: 6px;
+      background: var(--color-border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: 3px;
+      transition: width 0.1s;
+    }
+    .progress-text {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── 액션 행 ── */
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    /* ── 폴더 선택 영역 ── */
+    .folder-drop-zone {
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      color: var(--color-text-muted);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    .folder-drop-zone:hover, .folder-drop-zone.dragover {
+      border-color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+    }
+    .folder-drop-zone-icon { font-size: 2rem; margin-bottom: 6px; }
+
+    /* 숨김 파일 입력 */
+    #folderInput { display: none; }
+
+    /* ── 필터 바 ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .filter-input {
+      flex: 1;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text);
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      padding: 6px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filter-input:focus { border-color: var(--color-primary); }
+    .filter-input::placeholder { color: var(--color-text-muted); font-family: var(--font-body); }
+    .filter-clear {
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .filter-clear:hover { background: var(--color-border-subtle); }
+    .filter-hint {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* 정렬 옵션 */
+    .sort-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+    .sort-row select {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text);
+      font-size: 0.8rem;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+
+    [data-theme="dark"] .dup-group-header {
+      opacity: 0.92;
+    }
+  </style>
+</head>
+<body>
+  <nav class="tool-nav">
+    <a href="../index.html">← Web Tools</a>
+    <span class="tool-nav-sep">/</span>
+    <span class="tool-nav-current">Duplicate File Finder</span>
+    <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;">🌙</button>
+  </nav>
+
+  <div id="app">
+
+    <div class="app">
+      <div class="input-section">
+        <h2 style="font-size:1.25rem;font-weight:700;color:var(--color-text-heading);margin-bottom:4px;">
+          Duplicate File Finder
+        </h2>
+        <p style="font-size:0.88rem;color:var(--color-text-muted);margin-bottom:16px;">
+          폴더를 선택하면 SHA-256 해시로 동일 파일을 찾아 색상으로 묶어 표시합니다.
+        </p>
+        <label style="display:inline-flex;align-items:center;gap:7px;font-size:0.85rem;color:var(--color-text-label);cursor:pointer;margin-bottom:16px;user-select:none;">
+          <input type="checkbox" v-model="includeSubfolders" style="width:15px;height:15px;cursor:pointer;accent-color:var(--color-primary);">
+          하위 폴더 포함
+        </label>
+
+        <!-- 폴더 선택 -->
+        <input type="file" id="folderInput" webkitdirectory multiple @change="onFolderChange">
+        <div
+          class="folder-drop-zone"
+          :class="{ dragover: isDragging }"
+          @click="openFolder"
+          @dragover.prevent="isDragging = true"
+          @dragleave="isDragging = false"
+          @drop.prevent="onDrop"
+        >
+          <div class="folder-drop-zone-icon">📁</div>
+          <div v-if="!folderName">폴더를 클릭하거나 드래그해서 선택하세요</div>
+          <div v-else>
+            <strong style="color:var(--color-text-heading);">{{ folderName }}</strong><br>
+            <span style="font-size:0.8rem;">{{ allFiles.length }}개 파일 대상</span>
+            <span v-if="skippedCount > 0" style="font-size:0.78rem;color:var(--color-text-muted);"> (하위 폴더 {{ skippedCount }}개 제외)</span>
+          </div>
+        </div>
+
+        <!-- 진행률 -->
+        <div v-if="isHashing" class="progress-wrap">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" :style="{ width: progressPct + '%' }"></div>
+          </div>
+          <div class="progress-text">해시 계산 중… {{ doneCount }} / {{ allFiles.length }} ({{ progressPct }}%)</div>
+        </div>
+
+        <!-- 액션 -->
+        <div class="action-row">
+          <button
+            class="btn-primary"
+            @click="findDuplicates"
+            :disabled="allFiles.length === 0 || isHashing"
+          >
+            {{ isHashing ? '분석 중…' : '중복 찾기' }}
+          </button>
+          <button
+            v-if="allFiles.length > 0"
+            class="btn-ghost"
+            @click="reset"
+            :disabled="isHashing"
+          >
+            초기화
+          </button>
+          <span v-if="analyzed && !isHashing" class="status-badge" :class="dupGroups.length > 0 ? 'badge-warn' : 'badge-ok'">
+            {{ dupGroups.length > 0
+              ? `중복 그룹 ${dupGroups.length}개 / ${dupFileCount}개 파일`
+              : '중복 없음 ✓' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- 필터 바 -->
+      <div v-if="allFiles.length > 0" class="filter-bar">
+        <input
+          class="filter-input"
+          v-model="filterPattern"
+          placeholder="파일명 필터 — 와일드카드 사용 가능 (예: *.jpg  report*  *2024*.docx)"
+          spellcheck="false"
+        >
+        <button v-if="filterPattern" class="filter-clear" @click="filterPattern = ''">✕ 초기화</button>
+      </div>
+      <div v-if="filterPattern && allFiles.length > 0" class="filter-hint">
+        <code style="background:var(--color-border-subtle);padding:1px 5px;border-radius:3px;">*</code> = 임의 문자열 &nbsp;
+        <code style="background:var(--color-border-subtle);padding:1px 5px;border-radius:3px;">?</code> = 임의 문자 1개 &nbsp;·&nbsp; 대소문자 구분 없음
+      </div>
+
+      <!-- 메인 레이아웃 -->
+      <div class="main-layout" v-if="allFiles.length > 0">
+
+        <!-- 좌: 전체 파일 목록 -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title-row">
+              <span>전체 파일</span>
+              <span class="count-badge">{{ filteredSortedFiles.length }}</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="sort-row">
+              <span>정렬:</span>
+              <select v-model="sortBy">
+                <option value="name">이름순</option>
+                <option value="size">크기순</option>
+                <option value="path">경로순</option>
+              </select>
+            </div>
+            <div class="file-list">
+              <div
+                v-for="f in filteredSortedFiles"
+                :key="f.path"
+                class="file-item"
+                :style="f.dupColor ? { borderColor: f.dupColor, background: f.dupColor + '18' } : {}"
+              >
+                <span class="file-icon">{{ getFileIcon(f.name) }}</span>
+                <span class="file-path">{{ f.path }}</span>
+                <span class="file-size">{{ formatSize(f.size) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 우: 중복 파일 목록 -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title-row">
+              <span>중복 파일</span>
+              <span v-if="filteredDupGroups.length > 0" class="count-badge">{{ filteredDupGroups.length }}그룹</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <template v-if="!analyzed">
+              <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <div>「중복 찾기」 버튼을 누르면<br>동일 파일 그룹이 여기 표시됩니다.</div>
+              </div>
+            </template>
+            <template v-else-if="filteredDupGroups.length === 0">
+              <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <div>중복 파일이 없습니다.</div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="file-list" style="max-height:none;">
+                <div
+                  v-for="(group, gi) in filteredDupGroups"
+                  :key="group.hash"
+                  class="dup-group"
+                  :style="{ borderColor: group.color }"
+                >
+                  <div class="dup-group-header" :style="{ background: group.color + '28' }">
+                    <div class="dup-color-dot" :style="{ background: group.color }"></div>
+                    <span class="dup-hash" :title="group.hash">SHA-256: {{ group.hash.slice(0, 8) }}…</span>
+                    <span class="dup-count-label" :style="{ color: group.color }">
+                      {{ group.files.length }}개
+                    </span>
+                  </div>
+                  <div class="dup-files">
+                    <div
+                      v-for="f in group.files"
+                      :key="f.path"
+                      class="file-item"
+                      :style="{ borderColor: group.color + '60', background: group.color + '10' }"
+                    >
+                      <span class="file-icon">{{ getFileIcon(f.name) }}</span>
+                      <span class="file-path">{{ f.path }}</span>
+                      <span class="file-size">{{ formatSize(f.size) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+      </div><!-- /main-layout -->
+    </div><!-- /app -->
+  </div><!-- /#app -->
+
+  <script>
+    const { createApp, ref, computed, watch } = Vue;
+
+    /* 그룹 색상 팔레트 */
+    const PALETTE = [
+      '#e05c5c','#d4862a','#c2a800','#5aad5a','#2a9d8f',
+      '#4a90e2','#7b6fd4','#c2577e','#3aafaf','#e07030',
+      '#8b5cf6','#0ea5e9','#f59e0b','#10b981','#ef4444',
+    ];
+
+    function pickColor(index) {
+      return PALETTE[index % PALETTE.length];
+    }
+
+    function wildcardToRegex(pattern) {
+      if (!pattern.trim()) return null;
+      const escaped = pattern.trim()
+        .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+        .replace(/\*/g, '.*')
+        .replace(/\?/g, '.');
+      return new RegExp('^' + escaped + '$', 'i');
+    }
+
+    async function sha256(file) {
+      const buf = await file.arrayBuffer();
+      const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hashBuf))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    function formatSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const units = ['B','KB','MB','GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1) + ' ' + units[i];
+    }
+
+    function getFileIcon(name) {
+      const ext = name.split('.').pop().toLowerCase();
+      const map = {
+        jpg:'🖼️', jpeg:'🖼️', png:'🖼️', gif:'🖼️', webp:'🖼️', svg:'🖼️', ico:'🖼️',
+        mp4:'🎬', avi:'🎬', mov:'🎬', mkv:'🎬', webm:'🎬',
+        mp3:'🎵', wav:'🎵', flac:'🎵', aac:'🎵', ogg:'🎵',
+        pdf:'📕', doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', ppt:'📋', pptx:'📋',
+        zip:'📦', rar:'📦', '7z':'📦', tar:'📦', gz:'📦',
+        js:'📜', ts:'📜', html:'🌐', css:'🎨', json:'📋', xml:'📋', yaml:'📋', yml:'📋',
+        py:'🐍', java:'☕', go:'🐹', rs:'🦀', cpp:'⚙️', c:'⚙️', h:'⚙️',
+        md:'📖', txt:'📄',
+      };
+      return map[ext] || '📄';
+    }
+
+    createApp({
+      setup() {
+        const rawFiles    = ref([]);   // 입력에서 받은 원본 전체
+        const allFiles    = ref([]);   // 필터 적용 후 실제 대상
+        const folderName  = ref('');
+        const isHashing   = ref(false);
+        const analyzed    = ref(false);
+        const doneCount   = ref(0);
+        const isDragging  = ref(false);
+        const sortBy      = ref('name');
+        const dupGroups   = ref([]);   // { hash, color, files[] }
+        const includeSubfolders = ref(false);
+        const filterPattern = ref('');
+
+        const skippedCount = computed(() => rawFiles.value.length - allFiles.value.length);
+
+        const filterRegex = computed(() => wildcardToRegex(filterPattern.value));
+
+        const dupFileCount = computed(() =>
+          dupGroups.value.reduce((s, g) => s + g.files.length, 0)
+        );
+
+        const progressPct = computed(() =>
+          allFiles.value.length === 0 ? 0
+            : Math.round(doneCount.value / allFiles.value.length * 100)
+        );
+
+        const sortedFiles = computed(() => {
+          const arr = [...allFiles.value];
+          if (sortBy.value === 'name') arr.sort((a, b) => a.name.localeCompare(b.name));
+          else if (sortBy.value === 'size') arr.sort((a, b) => b.size - a.size);
+          else arr.sort((a, b) => a.path.localeCompare(b.path));
+          return arr;
+        });
+
+        const filteredSortedFiles = computed(() => {
+          const re = filterRegex.value;
+          if (!re) return sortedFiles.value;
+          return sortedFiles.value.filter(f => re.test(f.name));
+        });
+
+        const filteredDupGroups = computed(() => {
+          const re = filterRegex.value;
+          if (!re) return dupGroups.value;
+          return dupGroups.value
+            .map(g => ({ ...g, files: g.files.filter(f => re.test(f.name)) }))
+            .filter(g => g.files.length > 0);
+        });
+
+        function applyFilter() {
+          const all = rawFiles.value;
+          allFiles.value = includeSubfolders.value
+            ? all
+            : all.filter(f => f.path.split('/').length === 2); // 루트/파일명 = 깊이 2
+          analyzed.value = false;
+          dupGroups.value = [];
+          doneCount.value = 0;
+          allFiles.value.forEach(f => { f.hash = null; f.dupColor = null; });
+        }
+
+        watch(includeSubfolders, applyFilter);
+
+        function openFolder() {
+          document.getElementById('folderInput').click();
+        }
+
+        function loadFiles(fileList) {
+          const files = Array.from(fileList).map(f => ({
+            file: f,
+            name: f.name,
+            path: f.webkitRelativePath || f.name,
+            size: f.size,
+            hash: null,
+            dupColor: null,
+          }));
+          rawFiles.value = files;
+          folderName.value = files[0]?.path.split('/')[0] || '';
+          applyFilter();
+        }
+
+        function onDrop(e) {
+          isDragging.value = false;
+          const items = e.dataTransfer.items;
+          if (!items) return;
+          /* DataTransferItemList → FileList via webkitGetAsEntry는
+             폴더 드롭이 브라우저마다 다르므로 input fallback 안내 */
+          const files = e.dataTransfer.files;
+          if (files.length > 0) loadFiles(files);
+        }
+
+        function onFolderChange(e) {
+          if (e.target.files.length > 0) loadFiles(e.target.files);
+        }
+
+        async function findDuplicates() {
+          isHashing.value = true;
+          analyzed.value = false;
+          doneCount.value = 0;
+          dupGroups.value = [];
+
+          /* 색상 초기화 */
+          allFiles.value.forEach(f => { f.hash = null; f.dupColor = null; });
+
+          /* SHA-256 계산 (청크 단위로 yield하여 UI 블로킹 방지) */
+          const CHUNK = 8;
+          const files = allFiles.value;
+          for (let i = 0; i < files.length; i += CHUNK) {
+            const slice = files.slice(i, i + CHUNK);
+            await Promise.all(slice.map(async f => {
+              f.hash = await sha256(f.file);
+              doneCount.value++;
+            }));
+            /* microtask 양보 */
+            await new Promise(r => setTimeout(r, 0));
+          }
+
+          /* 해시별 그룹핑 */
+          const map = new Map();
+          for (const f of files) {
+            if (!map.has(f.hash)) map.set(f.hash, []);
+            map.get(f.hash).push(f);
+          }
+
+          /* 중복(2개 이상)만 추출, 크기 내림차순 */
+          const groups = [];
+          let colorIdx = 0;
+          for (const [hash, group] of map) {
+            if (group.length < 2) continue;
+            const color = pickColor(colorIdx++);
+            group.forEach(f => { f.dupColor = color; });
+            groups.push({
+              hash,
+              color,
+              files: group,
+              size: group[0].size,
+            });
+          }
+          groups.sort((a, b) => b.size - a.size);
+
+          dupGroups.value = groups;
+          analyzed.value = true;
+          isHashing.value = false;
+        }
+
+        function reset() {
+          allFiles.value = [];
+          folderName.value = '';
+          analyzed.value = false;
+          dupGroups.value = [];
+          doneCount.value = 0;
+          document.getElementById('folderInput').value = '';
+        }
+
+        return {
+          allFiles, sortedFiles, folderName,
+          isHashing, analyzed, doneCount, isDragging, sortBy,
+          dupGroups, dupFileCount, progressPct,
+          includeSubfolders, skippedCount,
+          filterPattern, filteredSortedFiles, filteredDupGroups,
+          openFolder, onDrop, onFolderChange, findDuplicates, reset,
+          formatSize, getFileIcon,
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

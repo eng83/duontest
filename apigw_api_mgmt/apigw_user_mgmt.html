@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APIGW User 관리</title>
+  <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/libs/vue.global.prod.js"></script>
+  <script src="../shared/js/proxy-config.js"></script>
+  <script src="../shared/js/theme.js" defer></script>
+  <style>
+    .app { max-width: 1280px; padding: 24px 20px 48px; }
+
+    .conn-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--color-text-label);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 0.88rem;
+      box-sizing: border-box;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: var(--color-primary);
+    }
+    .field textarea { resize: vertical; font-family: var(--font-body); }
+
+    /* 프로파일 아이콘 */
+    .host-input-wrap { position: relative; display: flex; }
+    .host-input-wrap input { flex: 1; border-radius: var(--radius-sm) 0 0 var(--radius-sm) !important; border-right: none !important; }
+    .profile-icon-btn {
+      width: 34px; flex-shrink: 0;
+      border: 1px solid var(--color-border); border-left: none;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: var(--color-panel-header); color: var(--color-text-label);
+      font-size: 0.85rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .profile-icon-btn:hover:not(:disabled) { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    .profile-icon-btn:disabled { opacity: 0.4; cursor: default; }
+    .profile-popover {
+      position: absolute; top: calc(100% + 4px); left: 0;
+      min-width: 100%; background: var(--color-card);
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 100; overflow: hidden;
+    }
+    .profile-item { padding: 9px 14px; font-size: 0.85rem; color: var(--color-text); cursor: pointer; white-space: nowrap; transition: background 0.1s; }
+    .profile-item:hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
+
+    .main-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+
+    /* 목록 */
+    .list-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .search-input {
+      flex: 1; padding: 7px 10px;
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      background: var(--color-bg); color: var(--color-text); font-size: 0.85rem;
+    }
+    .search-input:focus { outline: none; border-color: var(--color-primary); }
+    .user-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .user-table th {
+      text-align: left; padding: 8px 10px;
+      border-bottom: 2px solid var(--color-border);
+      color: var(--color-text-label); font-weight: 600; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .user-table td { padding: 9px 10px; border-bottom: 1px solid var(--color-border-subtle); vertical-align: middle; }
+    .user-table tr.selected td { background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+    .user-table tbody tr:hover td { background: color-mix(in srgb, var(--color-primary) 5%, transparent); cursor: pointer; }
+    .login-id { font-weight: 600; color: var(--color-text); }
+    .full-name { font-size: 0.78rem; color: var(--color-text-muted); }
+
+    .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 0.72rem; font-weight: 700; }
+    .badge-active   { background: #e6f4ea; color: #2e7d32; }
+    .badge-inactive { background: #fce8e6; color: #c62828; }
+    .badge-locked   { background: #fff3e0; color: #e65100; }
+    .badge-system   { background: var(--color-border-subtle); color: var(--color-text-muted); }
+    [data-theme="dark"] .badge-active   { background: #1b3a1e; color: #81c784; }
+    [data-theme="dark"] .badge-inactive { background: #3b1a1a; color: #ef9a9a; }
+    [data-theme="dark"] .badge-locked   { background: #3b2a1a; color: #ffb74d; }
+    [data-theme="dark"] .badge-system   { background: #2a2a3a; color: #aaa; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--color-text-muted); font-size: 0.88rem; }
+
+    /* 잠금 계정 섹션 */
+    .lock-section { margin-top: 12px; }
+    .lock-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .lock-item {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--color-warning-bg); border: 1px solid var(--color-warning);
+      border-radius: var(--radius-sm); padding: 4px 10px; font-size: 0.82rem;
+    }
+    .lock-name { color: var(--color-warning); font-weight: 600; }
+    .btn-unlock {
+      font-size: 0.72rem; padding: 2px 7px;
+      background: var(--color-warning); color: #fff;
+      border: none; border-radius: 4px; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-unlock:hover { opacity: 0.85; }
+
+    /* 상세/편집 패널 */
+    .detail-panel { display: flex; flex-direction: column; }
+    .tab-bar { display: flex; border-bottom: 2px solid var(--color-border); margin-bottom: 16px; }
+    .tab-btn {
+      padding: 8px 16px; background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+    .tab-btn:hover:not(.active) { color: var(--color-text); }
+
+    .kv-grid { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; font-size: 0.84rem; }
+    .kv-key { color: var(--color-text-label); font-weight: 600; padding-top: 2px; }
+    .kv-val { color: var(--color-text); word-break: break-all; }
+    .kv-val.mono { font-family: var(--font-mono); font-size: 0.8rem; }
+
+    .action-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+    .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .edit-grid .field.full { grid-column: 1 / -1; }
+
+    .pw-section {
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px dashed var(--color-border);
+    }
+    .pw-section-label {
+      font-size: 0.78rem; color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+    .pw-hint { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px; }
+
+    .panel-placeholder {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 200px; color: var(--color-text-muted); font-size: 0.88rem; gap: 8px;
+    }
+    .panel-placeholder .ph-icon { font-size: 2.2rem; opacity: 0.4; }
+
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 4px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--color-text); }
+    .checkbox-row input[type="checkbox"] { width: auto; }
+
+    /* 일괄 처리 */
+    .user-table th.cb-col,
+    .user-table td.cb-col { width: 32px; padding: 8px 6px 8px 10px; }
+    .user-table input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: var(--color-primary); }
+    .user-table tr.disabled-row { opacity: 0.45; }
+    .bulk-result {
+      margin-top: 10px; font-size: 0.82rem; padding: 8px 12px;
+      border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+    }
+    .bulk-result.has-error { border-color: var(--color-error); background: var(--color-error-bg); color: var(--color-error-text); }
+
+    @media (max-width: 900px) {
+      .conn-grid { grid-template-columns: 1fr 1fr; }
+      .main-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="tool-nav">
+  <a href="../index.html">← Web Tools</a>
+  <span class="tool-nav-sep">/</span>
+  <span class="tool-nav-current">APIGW User 관리</span>
+  <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;">🌙</button>
+</nav>
+
+<div id="app">
+  <div class="app">
+    <h1 style="font-size:1.4rem;font-weight:700;color:var(--color-text-heading);margin-bottom:4px;">APIGW User 관리</h1>
+    <p style="font-size:0.85rem;color:var(--color-text-muted);margin-bottom:20px;">webMethods API Gateway의 사용자를 조회·생성·수정·삭제하고 잠긴 계정을 해제합니다.</p>
+
+    <!-- 연결 설정 -->
+    <div class="input-section">
+      <div class="conn-grid">
+        <div class="field">
+          <label style="display:flex;align-items:center;justify-content:space-between;">
+            Host URL
+            <span v-if="profilesError" style="font-size:0.72rem;color:var(--color-text-muted);">
+              {{ profilesError }}
+              <button @click="loadProfiles" style="color:var(--color-primary);background:none;border:none;cursor:pointer;padding:0;font-size:0.72rem;">재시도</button>
+            </span>
+          </label>
+          <div class="host-input-wrap">
+            <input v-model="host" type="text" placeholder="https://host:7111" @keydown.enter="connect" />
+            <button class="profile-icon-btn" @click="profileOpen = !profileOpen"
+                    :title="profiles.length ? '연결 프로파일 선택' : '프록시 서버 미실행'"
+                    :disabled="!profiles.length">
+              <span v-if="profilesLoading">⏳</span><span v-else>☰</span>
+            </button>
+            <div v-if="profileOpen && profiles.length" class="profile-popover">
+              <div v-for="p in profiles" :key="p.name" class="profile-item" @click="selectProfile(p)">{{ p.name }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <input v-model="username" type="text" placeholder="Administrator" @keydown.enter="connect" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input v-model="password" type="password" placeholder="••••" @keydown.enter="connect" />
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" @click="connect" :disabled="connecting" style="width:100%;padding:8px 16px;">
+            <span v-if="connecting" class="spinner"></span>
+            {{ connecting ? '연결 중...' : (connected ? '🔄 새로고침' : '연결') }}
+          </button>
+        </div>
+      </div>
+      <div v-if="errorMsg" class="error-box" style="margin-top:12px;">{{ errorMsg }}</div>
+      <div v-if="connected" style="margin-top:10px;font-size:0.82rem;color:var(--color-success);">
+        ✓ {{ host }} 연결됨 — 사용자 {{ users.length }}명
+      </div>
+    </div>
+
+    <!-- 메인 레이아웃 -->
+    <div class="main-layout" v-if="connected">
+
+      <!-- 좌측: 사용자 목록 -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">사용자 목록</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-success" @click="openAddMode" style="font-size:0.8rem;padding:5px 12px;">+ 새 사용자</button>
+              <button class="btn btn-primary" @click="bulkSetActive(true)"
+                      :disabled="selectedCount === 0 || bulkLoading"
+                      style="font-size:0.8rem;padding:5px 12px;">
+                <span v-if="bulkLoading" class="spinner"></span>
+                활성화{{ selectedCount ? ` (${selectedCount})` : '' }}
+              </button>
+              <button class="btn btn-ghost" @click="bulkSetActive(false)"
+                      :disabled="selectedCount === 0 || bulkLoading"
+                      style="font-size:0.8rem;padding:5px 12px;color:var(--color-error);">
+                비활성화{{ selectedCount ? ` (${selectedCount})` : '' }}
+              </button>
+            </div>
+          </div>
+          <div class="panel-body" style="padding:16px;">
+            <div class="list-toolbar">
+              <input class="search-input" v-model="searchText" placeholder="loginId 또는 이름으로 검색…" />
+            </div>
+            <div v-if="filteredUsers.length === 0" class="empty-state">
+              {{ searchText ? '검색 결과가 없습니다.' : '사용자가 없습니다.' }}
+            </div>
+            <table v-else class="user-table">
+              <thead>
+                <tr>
+                  <th class="cb-col">
+                    <input type="checkbox" :checked="allSelectableChecked" :indeterminate.prop="someSelected"
+                           @change="toggleSelectAll" title="전체 선택 (시스템 계정 제외)" />
+                  </th>
+                  <th>Login ID</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="u in filteredUsers" :key="u.id"
+                    :class="{ selected: selectedUser && selectedUser.id === u.id, 'disabled-row': u.systemDefined }"
+                    @click="selectUser(u.id)">
+                  <td class="cb-col" @click.stop>
+                    <input type="checkbox"
+                           :checked="selectedIds.has(u.id)"
+                           :disabled="u.systemDefined"
+                           @change="toggleSelect(u.id)"
+                           :title="u.systemDefined ? '시스템 계정은 일괄 처리 불가' : ''" />
+                  </td>
+                  <td>
+                    <div class="login-id">{{ u.loginId }}</div>
+                    <div class="full-name">{{ [u.firstName, u.lastName].filter(Boolean).join(' ') || '—' }}</div>
+                  </td>
+                  <td>
+                    <span class="badge" :class="u.active ? 'badge-active' : 'badge-inactive'">
+                      {{ u.active ? '활성' : '비활성' }}
+                    </span>
+                    <span v-if="u.systemDefined" class="badge badge-system" style="margin-left:4px;">시스템</span>
+                    <span v-if="lockedAccounts.includes(u.loginId)" class="badge badge-locked" style="margin-left:4px;">잠금</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- 일괄 처리 결과 -->
+            <div v-if="bulkResult" class="bulk-result" :class="{ 'has-error': bulkResult.failed.length }">
+              <template v-if="bulkResult.failed.length === 0">
+                ✓ {{ bulkResult.success.length }}명 처리 완료
+              </template>
+              <template v-else>
+                성공 {{ bulkResult.success.length }}명 /
+                실패 {{ bulkResult.failed.length }}명: {{ bulkResult.failed.join(', ') }}
+              </template>
+            </div>
+
+            <!-- 잠금 계정 섹션 -->
+            <div class="lock-section" v-if="lockedAccounts.length">
+              <div style="font-size:0.78rem;font-weight:600;color:var(--color-warning);margin-bottom:4px;">🔒 잠긴 계정 ({{ lockedAccounts.length }})</div>
+              <div class="lock-list">
+                <div v-for="name in lockedAccounts" :key="name" class="lock-item">
+                  <span class="lock-name">{{ name }}</span>
+                  <button class="btn-unlock" @click.stop="unlockAccount(name)" :disabled="lockLoading">해제</button>
+                </div>
+              </div>
+            </div>
+            <div v-else-if="connected" style="margin-top:12px;font-size:0.78rem;color:var(--color-text-muted);">
+              잠긴 계정 없음
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 상세/수정/추가 -->
+      <div>
+        <!-- 플레이스홀더 -->
+        <div class="panel" v-if="!selectedUser && !addMode">
+          <div class="panel-body" style="padding:16px;">
+            <div class="panel-placeholder">
+              <div class="ph-icon">👤</div>
+              <span>목록에서 사용자를 선택하거나<br>새 사용자를 추가하세요.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 상세/수정 패널 -->
+        <div class="panel detail-panel" v-if="selectedUser && !addMode">
+          <div class="panel-header" style="flex-shrink:0;">
+            <span class="panel-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" :title="selectedUser.loginId">
+              {{ selectedUser.loginId }}
+            </span>
+            <button class="btn btn-ghost" @click="closeDetail" style="font-size:0.8rem;padding:4px 10px;">✕ 닫기</button>
+          </div>
+          <div style="padding:0 16px;flex-shrink:0;">
+            <div class="tab-bar">
+              <button class="tab-btn" :class="{ active: activeTab === 'detail' }" @click="activeTab = 'detail'">상세</button>
+              <button class="tab-btn" :class="{ active: activeTab === 'edit' }" @click="openEditTab">수정</button>
+            </div>
+          </div>
+
+          <!-- 상세 탭 -->
+          <div class="panel-body" style="padding:0 16px 16px;" v-if="activeTab === 'detail'">
+            <div class="kv-grid">
+              <div class="kv-key">ID</div>
+              <div class="kv-val mono">{{ selectedUser.id }}</div>
+              <div class="kv-key">Login ID</div>
+              <div class="kv-val">{{ selectedUser.loginId }}</div>
+              <div class="kv-key">이름</div>
+              <div class="kv-val">{{ [selectedUser.firstName, selectedUser.lastName].filter(Boolean).join(' ') || '—' }}</div>
+              <div class="kv-key">상태</div>
+              <div class="kv-val">
+                <span class="badge" :class="selectedUser.active ? 'badge-active' : 'badge-inactive'">
+                  {{ selectedUser.active ? '활성' : '비활성' }}
+                </span>
+                <span v-if="lockedAccounts.includes(selectedUser.loginId)" class="badge badge-locked" style="margin-left:6px;">잠금</span>
+              </div>
+              <div class="kv-key">이메일</div>
+              <div class="kv-val">{{ (selectedUser.emailAddresses || []).join(', ') || '—' }}</div>
+              <div class="kv-key">언어</div>
+              <div class="kv-val">{{ selectedUser.language || '—' }}</div>
+              <div class="kv-key">Digest 인증</div>
+              <div class="kv-val">{{ selectedUser.allowDigestAuth ? '허용' : '불가' }}</div>
+              <div class="kv-key">시스템 계정</div>
+              <div class="kv-val">{{ selectedUser.systemDefined ? '예' : '아니오' }}</div>
+              <div class="kv-key">유형</div>
+              <div class="kv-val">{{ selectedUser.type || '—' }}</div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-primary" @click="toggleActive"
+                      :disabled="actionLoading || isSystemUser"
+                      :title="isSystemUser ? '시스템 계정은 상태 변경 불가' : ''"
+                      style="min-width:110px;">
+                <span v-if="actionLoading" class="spinner"></span>
+                {{ selectedUser.active ? '비활성화' : '활성화' }}
+              </button>
+              <button class="btn btn-ghost" @click="deleteUser"
+                      :disabled="actionLoading || isSystemUser"
+                      :title="isSystemUser ? '시스템 계정은 삭제 불가' : ''"
+                      style="color:var(--color-error);">
+                삭제
+              </button>
+              <button v-if="lockedAccounts.includes(selectedUser.loginId)"
+                      class="btn btn-ghost" @click="unlockAccount(selectedUser.loginId)"
+                      :disabled="lockLoading" style="color:var(--color-warning);">
+                🔒 잠금 해제
+              </button>
+            </div>
+            <div v-if="actionError" class="error-box" style="margin-top:10px;">{{ actionError }}</div>
+          </div>
+
+          <!-- 수정 탭 -->
+          <div class="panel-body" style="padding:0 16px 16px;" v-if="activeTab === 'edit'">
+            <div class="edit-grid">
+              <div class="field">
+                <label>First Name</label>
+                <input v-model="editForm.firstName" type="text" />
+              </div>
+              <div class="field">
+                <label>Last Name</label>
+                <input v-model="editForm.lastName" type="text" />
+              </div>
+              <div class="field full">
+                <label>이메일 (쉼표로 구분)</label>
+                <input v-model="editForm.emailText" type="text" placeholder="a@example.com, b@example.com" />
+              </div>
+              <div class="field">
+                <label>언어</label>
+                <input v-model="editForm.language" type="text" placeholder="en" />
+              </div>
+              <div class="field" style="display:flex;align-items:flex-end;">
+                <label class="checkbox-row" style="padding-bottom:8px;">
+                  <input type="checkbox" v-model="editForm.allowDigestAuth" />
+                  Digest 인증 허용
+                </label>
+              </div>
+            </div>
+
+            <!-- 비밀번호 변경 (선택) -->
+            <div class="pw-section">
+              <div class="pw-section-label">🔑 비밀번호 변경 (선택 — 비워두면 변경하지 않음)</div>
+              <div class="edit-grid">
+                <div class="field full">
+                  <label>새 비밀번호</label>
+                  <input v-model="editForm.newPassword" type="password" placeholder="변경하지 않으려면 비워두세요" autocomplete="new-password" />
+                  <div class="pw-hint">입력 시에만 비밀번호가 변경됩니다.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button class="btn btn-primary" @click="saveUser" :disabled="actionLoading">
+                <span v-if="actionLoading" class="spinner"></span>
+                저장
+              </button>
+              <button class="btn btn-ghost" @click="openEditTab">초기화</button>
+            </div>
+            <div v-if="actionError" class="error-box" style="margin-top:10px;">{{ actionError }}</div>
+          </div>
+        </div>
+
+        <!-- 추가 패널 -->
+        <div class="panel" v-if="addMode">
+          <div class="panel-header" style="flex-shrink:0;">
+            <span class="panel-title">새 사용자 추가</span>
+            <button class="btn btn-ghost" @click="closeAdd" style="font-size:0.8rem;padding:4px 10px;">✕ 닫기</button>
+          </div>
+          <div class="panel-body" style="padding:16px;">
+            <div class="edit-grid">
+              <div class="field">
+                <label>Login ID <span style="color:var(--color-error);">*</span></label>
+                <input v-model="addForm.loginId" type="text" placeholder="testuser" />
+              </div>
+              <div class="field">
+                <label>비밀번호 <span style="color:var(--color-error);">*</span></label>
+                <input v-model="addForm.password" type="password" placeholder="초기 비밀번호" autocomplete="new-password" />
+              </div>
+              <div class="field">
+                <label>First Name</label>
+                <input v-model="addForm.firstName" type="text" />
+              </div>
+              <div class="field">
+                <label>Last Name</label>
+                <input v-model="addForm.lastName" type="text" />
+              </div>
+              <div class="field full">
+                <label>이메일 (쉼표로 구분)</label>
+                <input v-model="addForm.emailText" type="text" placeholder="a@example.com" />
+              </div>
+              <div class="field">
+                <label>언어</label>
+                <input v-model="addForm.language" type="text" placeholder="en" />
+              </div>
+              <div class="field" style="display:flex;align-items:flex-end;">
+                <label class="checkbox-row" style="padding-bottom:8px;">
+                  <input type="checkbox" v-model="addForm.allowDigestAuth" />
+                  Digest 인증 허용
+                </label>
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-success" @click="createUser" :disabled="actionLoading">
+                <span v-if="actionLoading" class="spinner"></span>
+                사용자 생성
+              </button>
+              <button class="btn btn-ghost" @click="resetAddForm">초기화</button>
+            </div>
+            <div v-if="actionError" class="error-box" style="margin-top:10px;">{{ actionError }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed, reactive, onMounted } = Vue;
+const PROXY = window.WEB_TOOLS_PROXY || 'http://localhost:9090';
+
+createApp({
+  setup() {
+    // ── 연결 프로파일 ──
+    const profiles        = ref([]);
+    const profileOpen     = ref(false);
+    const profilesLoading = ref(false);
+    const profilesError   = ref('');
+
+    async function loadProfiles() {
+      profilesLoading.value = true;
+      profilesError.value   = '';
+      try {
+        const res = await fetch(`${PROXY}/api/connections`);
+        if (res.ok) profiles.value = await res.json();
+        else profilesError.value = `로드 실패 (HTTP ${res.status})`;
+      } catch {
+        profilesError.value = '프록시 미실행';
+      } finally {
+        profilesLoading.value = false;
+      }
+    }
+
+    function selectProfile(p) {
+      host.value = p.host || host.value;
+      profileOpen.value = false;
+    }
+
+    // ── 연결 상태 ──
+    const host       = ref(localStorage.getItem('wt-apigw-host') || 'http://localhost:5555');
+    const username   = ref(localStorage.getItem('wt-apigw-user') || '');
+    const password   = ref('');
+    const connected  = ref(false);
+    const connecting = ref(false);
+    const errorMsg   = ref('');
+
+    // ── 목록 ──
+    const users      = ref([]);
+    const searchText = ref('');
+    const filteredUsers = computed(() => {
+      const q = searchText.value.trim().toLowerCase();
+      if (!q) return users.value;
+      return users.value.filter(u =>
+        (u.loginId    || '').toLowerCase().includes(q) ||
+        (u.firstName  || '').toLowerCase().includes(q) ||
+        (u.lastName   || '').toLowerCase().includes(q)
+      );
+    });
+
+    // ── 선택/모드 ──
+    const selectedUser  = ref(null);
+    const activeTab     = ref('detail');
+    const addMode       = ref(false);
+    const actionLoading = ref(false);
+    const actionError   = ref('');
+
+    // ── 편집 폼 ──
+    const editForm = reactive({
+      firstName: '', lastName: '', emailText: '',
+      language: '', allowDigestAuth: false, newPassword: '',
+    });
+
+    // ── 추가 폼 ──
+    const addForm = reactive({
+      loginId: '', password: '', firstName: '', lastName: '',
+      emailText: '', language: 'en', allowDigestAuth: false,
+    });
+
+    // ── 잠금 계정 ──
+    const lockedAccounts = ref([]);
+    const lockLoading    = ref(false);
+
+    // ── 일괄 처리 ──
+    const selectedIds  = ref(new Set());
+    const bulkLoading  = ref(false);
+    const bulkResult   = ref(null);
+
+    const selectedCount  = computed(() => [...selectedIds.value].length);
+    const isSystemUser   = computed(() => selectedUser.value?.systemDefined === true);
+
+    const selectableUsers = computed(() =>
+      users.value.filter(u => !u.systemDefined)
+    );
+    const allSelectableChecked = computed(() =>
+      selectableUsers.value.length > 0 &&
+      selectableUsers.value.every(u => selectedIds.value.has(u.id))
+    );
+    const someSelected = computed(() =>
+      selectedIds.value.size > 0 && !allSelectableChecked.value
+    );
+
+    function toggleSelect(id) {
+      const s = new Set(selectedIds.value);
+      s.has(id) ? s.delete(id) : s.add(id);
+      selectedIds.value = s;
+      bulkResult.value = null;
+    }
+
+    function toggleSelectAll() {
+      bulkResult.value = null;
+      if (allSelectableChecked.value) {
+        selectedIds.value = new Set();
+      } else {
+        selectedIds.value = new Set(selectableUsers.value.map(u => u.id));
+      }
+    }
+
+    async function bulkSetActive(active) {
+      if (selectedIds.value.size === 0) return;
+      bulkLoading.value = true;
+      bulkResult.value  = null;
+      const success = [], failed = [];
+
+      for (const id of selectedIds.value) {
+        const cached = users.value.find(u => u.id === id);
+        if (!cached) continue;
+        try {
+          // 목록 캐시 활용 — 개별 GET 생략, password 제거 후 PUT
+          const { id: _id, systemDefined, ...base } = cached;
+          await apigwFetch(`/users/${id}`, 'PUT', { ...base, active });
+          success.push(cached.loginId);
+        } catch {
+          failed.push(cached.loginId);
+        }
+      }
+
+      bulkResult.value = { success, failed };
+      // 성공한 항목만 선택 해제
+      const remaining = new Set(
+        failed.map(loginId => users.value.find(u => u.loginId === loginId)?.id).filter(Boolean)
+      );
+      selectedIds.value = remaining;
+      await refreshList();
+      bulkLoading.value = false;
+    }
+
+    // ── API 호출 helper ──
+    async function apigwFetch(path, method = 'GET', body = undefined) {
+      const auth = btoa(`${username.value}:${password.value}`);
+      const res = await fetch(`${PROXY}/proxy/forward`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: `${host.value}/rest/apigateway${path}`,
+          method,
+          headers: { Authorization: `Basic ${auth}` },
+          body,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const msg = data?.message || data?.errorDescription || data?.description
+                 || data?.error || data?.errorDetails
+                 || (data ? JSON.stringify(data) : `HTTP ${res.status}`);
+        throw new Error(`HTTP ${res.status}: ${msg}`);
+      }
+      return data;
+    }
+
+    // ── 이메일 텍스트 파싱 ──
+    function parseEmails(text) {
+      return text.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    // ── 연결 ──
+    async function connect() {
+      connecting.value = true;
+      errorMsg.value   = '';
+      try {
+        const data = await apigwFetch('/users');
+        users.value = data.users || [];
+        localStorage.setItem('wt-apigw-host', host.value);
+        localStorage.setItem('wt-apigw-user', username.value);
+        connected.value = true;
+        selectedUser.value = null;
+        addMode.value = false;
+        await loadLockedAccounts();
+      } catch (e) {
+        if (e.name === 'TypeError' && e.message.includes('fetch')) {
+          errorMsg.value = '프록시 서버에 연결할 수 없습니다. server/ 폴더에서 npm start를 먼저 실행해주세요.';
+        } else {
+          errorMsg.value = e.message;
+        }
+        connected.value = false;
+      } finally {
+        connecting.value = false;
+      }
+    }
+
+    // ── 사용자 선택 ──
+    async function selectUser(id) {
+      actionError.value = '';
+      addMode.value = false;
+      try {
+        const data = await apigwFetch(`/users/${id}`);
+        selectedUser.value = (data.users || [])[0] || null;
+        console.log('[selectUser]', selectedUser.value?.loginId, 'systemDefined:', selectedUser.value?.systemDefined, typeof selectedUser.value?.systemDefined);
+        activeTab.value = 'detail';
+      } catch (e) {
+        actionError.value = e.message;
+      }
+    }
+
+    function closeDetail() { selectedUser.value = null; actionError.value = ''; }
+
+    // ── 수정 탭 열기 ──
+    function openEditTab() {
+      activeTab.value = 'edit';
+      actionError.value = '';
+      if (selectedUser.value) {
+        editForm.firstName      = selectedUser.value.firstName      || '';
+        editForm.lastName       = selectedUser.value.lastName       || '';
+        editForm.emailText      = (selectedUser.value.emailAddresses || []).join(', ');
+        editForm.language       = selectedUser.value.language       || '';
+        editForm.allowDigestAuth = selectedUser.value.allowDigestAuth || false;
+        editForm.newPassword    = '';
+      }
+    }
+
+    // ── 활성화/비활성화 ──
+    async function toggleActive() {
+      if (!selectedUser.value) return;
+      actionLoading.value = true;
+      actionError.value   = '';
+      try {
+        // GET → password 제거 → active 반전 → PUT
+        const fresh = (await apigwFetch(`/users/${selectedUser.value.id}`)).users[0];
+        const { id, systemDefined, ...base } = fresh;
+        await apigwFetch(`/users/${selectedUser.value.id}`, 'PUT', {
+          ...base,
+          active: !fresh.active,
+        });
+        await selectUser(selectedUser.value.id);
+        await refreshList();
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 삭제 ──
+    async function deleteUser() {
+      if (!selectedUser.value || selectedUser.value.systemDefined) return;
+      if (!confirm(`"${selectedUser.value.loginId}" 사용자를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+      actionLoading.value = true;
+      actionError.value   = '';
+      try {
+        await apigwFetch(`/users/${selectedUser.value.id}`, 'DELETE');
+        selectedUser.value = null;
+        await refreshList();
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 저장 (PUT) ──
+    async function saveUser() {
+      if (!selectedUser.value) return;
+      actionLoading.value = true;
+      actionError.value   = '';
+      try {
+        // GET → readOnly + 마스킹 비밀번호 제거 → 폼값 병합 → PUT
+        const fresh = (await apigwFetch(`/users/${selectedUser.value.id}`)).users[0];
+        const { id, systemDefined, ...base } = fresh;
+
+        const payload = {
+          ...base,
+          firstName:       editForm.firstName,
+          lastName:        editForm.lastName,
+          emailAddresses:  parseEmails(editForm.emailText),
+          language:        editForm.language,
+          allowDigestAuth: editForm.allowDigestAuth,
+        };
+
+        // 새 비밀번호 입력 시에만 포함
+        if (editForm.newPassword) payload.password = editForm.newPassword;
+
+        await apigwFetch(`/users/${selectedUser.value.id}`, 'PUT', payload);
+        await selectUser(selectedUser.value.id);
+        await refreshList();
+        activeTab.value = 'detail';
+        editForm.newPassword = '';
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 추가 모드 ──
+    function openAddMode() {
+      addMode.value = true;
+      selectedUser.value = null;
+      actionError.value = '';
+      resetAddForm();
+    }
+    function closeAdd() { addMode.value = false; actionError.value = ''; }
+    function resetAddForm() {
+      addForm.loginId = addForm.password = addForm.firstName = '';
+      addForm.lastName = addForm.emailText = '';
+      addForm.language = 'en';
+      addForm.allowDigestAuth = false;
+    }
+
+    // ── 사용자 생성 ──
+    async function createUser() {
+      if (!addForm.loginId || !addForm.password) {
+        actionError.value = 'Login ID와 비밀번호는 필수입니다.';
+        return;
+      }
+      actionLoading.value = true;
+      actionError.value   = '';
+      try {
+        const payload = {
+          loginId:         addForm.loginId,
+          password:        addForm.password,
+          firstName:       addForm.firstName,
+          lastName:        addForm.lastName,
+          emailAddresses:  parseEmails(addForm.emailText),
+          language:        addForm.language || 'en',
+          allowDigestAuth: addForm.allowDigestAuth,
+          type:            'local',
+          active:          true,
+        };
+        const result = await apigwFetch('/users', 'POST', payload);
+        await refreshList();
+        addMode.value = false;
+        resetAddForm();
+        const newId = result.id || result.loginId;
+        if (newId) await selectUser(newId);
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 잠금 계정 ──
+    async function loadLockedAccounts() {
+      try {
+        const data = await apigwFetch('/is/lockedAccounts');
+        lockedAccounts.value = data.lockedAccounts || [];
+      } catch { lockedAccounts.value = []; }
+    }
+
+    async function unlockAccount(name) {
+      lockLoading.value = true;
+      try {
+        await apigwFetch('/is/lockedAccounts', 'POST', {
+          unLockAccounts: { userName: [name] },
+        });
+        await loadLockedAccounts();
+        if (selectedUser.value?.loginId === name) await selectUser(selectedUser.value.id);
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        lockLoading.value = false;
+      }
+    }
+
+    // ── 목록 새로고침 ──
+    async function refreshList() {
+      try {
+        const data = await apigwFetch('/users');
+        users.value = data.users || [];
+      } catch {}
+    }
+
+    onMounted(() => {
+      loadProfiles();
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.host-input-wrap')) profileOpen.value = false;
+      });
+    });
+
+    return {
+      profiles, profileOpen, profilesLoading, profilesError, selectProfile, loadProfiles,
+      host, username, password, connected, connecting, errorMsg,
+      users, searchText, filteredUsers,
+      selectedUser, activeTab, addMode, actionLoading, actionError,
+      editForm, addForm,
+      lockedAccounts, lockLoading,
+      selectedIds, bulkLoading, bulkResult, selectedCount, isSystemUser,
+      allSelectableChecked, someSelected,
+      toggleSelect, toggleSelectAll, bulkSetActive,
+      connect, selectUser, closeDetail,
+      openEditTab, toggleActive, deleteUser, saveUser,
+      openAddMode, closeAdd, resetAddForm, createUser,
+      unlockAccount,
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

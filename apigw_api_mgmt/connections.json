@@ -1,0 +1,15 @@
+[
+  {
+    "name": "개발 환경 (dev-apigw-ksoe)",
+    "host": "https://dev-apigw-ksoe.hd.com:7111"
+  },
+  {
+    "name": "운영 환경 (prod-apigw #1)",
+    "host": "https://10.100.36.239:7111"
+  },
+  {
+    "name": "운영 환경 (prod-apigw #2)",
+    "host": "https://10.100.36.240:7111"
+  }
+
+]

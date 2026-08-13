@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APIGW API 관리</title>
+  <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/libs/vue.global.prod.js"></script>
+  <script src="../shared/js/proxy-config.js"></script>
+  <script src="../shared/js/theme.js" defer></script>
+  <style>
+    .app { max-width: 1280px; padding: 24px 20px 48px; }
+
+    /* ── 연결 설정 ── */
+    .conn-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--color-text-label);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .field input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 0.88rem;
+      box-sizing: border-box;
+    }
+    .field input:focus { outline: none; border-color: var(--color-primary); }
+
+    /* ── 메인 레이아웃 ── */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    /* ── API 목록 ── */
+    .list-toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .host-input-wrap {
+      position: relative;
+      display: flex;
+    }
+    .host-input-wrap input {
+      flex: 1;
+      border-radius: var(--radius-sm) 0 0 var(--radius-sm) !important;
+      border-right: none !important;
+    }
+    .profile-icon-btn {
+      width: 34px;
+      flex-shrink: 0;
+      border: 1px solid var(--color-border);
+      border-left: none;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: var(--color-panel-header);
+      color: var(--color-text-label);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .profile-icon-btn:hover:not(:disabled) {
+      background: var(--color-primary);
+      color: #fff;
+      border-color: var(--color-primary);
+    }
+    .profile-icon-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .profile-popover {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 100%;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 100;
+      overflow: hidden;
+    }
+    .profile-item {
+      padding: 9px 14px;
+      font-size: 0.85rem;
+      color: var(--color-text);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.1s;
+    }
+    .profile-item:hover { background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
+
+    .search-input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 0.85rem;
+    }
+    .search-input:focus { outline: none; border-color: var(--color-primary); }
+
+    .api-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .api-table th {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--color-border);
+      color: var(--color-text-label);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .api-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--color-border-subtle);
+      color: var(--color-text);
+      vertical-align: middle;
+    }
+    .api-table tr.selected td { background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+    .api-table tbody tr:hover td { background: color-mix(in srgb, var(--color-primary) 5%, transparent); cursor: pointer; }
+    .api-name-cell { font-weight: 600; }
+    .api-ver { font-size: 0.78rem; color: var(--color-text-muted); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .badge-active   { background: #e6f4ea; color: #2e7d32; }
+    .badge-inactive { background: #fce8e6; color: #c62828; }
+    .badge-type     { background: var(--color-border-subtle); color: var(--color-text-label); }
+
+    [data-theme="dark"] .badge-active   { background: #1b3a1e; color: #81c784; }
+    [data-theme="dark"] .badge-inactive { background: #3b1a1a; color: #ef9a9a; }
+    [data-theme="dark"] .badge-type     { background: #2a2a3a; color: #aaa; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--color-text-muted);
+      font-size: 0.88rem;
+    }
+
+    /* ── 상세 / 편집 패널 ── */
+    .detail-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--color-border);
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+    .tab-btn:hover:not(.active) { color: var(--color-text); }
+
+    /* KV 그리드 */
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 8px 12px;
+      font-size: 0.84rem;
+    }
+    .kv-key {
+      color: var(--color-text-label);
+      font-weight: 600;
+      padding-top: 2px;
+    }
+    .kv-val { color: var(--color-text); word-break: break-all; }
+    .kv-val.mono { font-family: var(--font-mono); font-size: 0.8rem; }
+
+    .action-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+    /* 편집 폼 */
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .edit-grid .field.full { grid-column: 1 / -1; }
+    .field textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      resize: vertical;
+      box-sizing: border-box;
+      min-height: 60px;
+    }
+    .field textarea:focus { outline: none; border-color: var(--color-primary); }
+
+    /* 파일 드롭존 */
+    .dropzone {
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 0.84rem;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+    }
+    .dropzone:hover, .dropzone.drag-over {
+      border-color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+      color: var(--color-primary);
+    }
+    .dropzone-icon { font-size: 1.6rem; margin-bottom: 6px; }
+
+    .spec-preview {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      max-height: 160px;
+      overflow: auto;
+      white-space: pre;
+      color: var(--color-text-muted);
+    }
+
+    /* 플레이스홀더 */
+    .panel-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--color-text-muted);
+      font-size: 0.88rem;
+      gap: 8px;
+    }
+    .panel-placeholder .ph-icon { font-size: 2.2rem; opacity: 0.4; }
+
+    /* 로딩 스피너 */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 반응형 */
+    @media (max-width: 900px) {
+      .conn-grid { grid-template-columns: 1fr 1fr; }
+      .main-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="tool-nav">
+  <a href="../index.html">← Web Tools</a>
+  <span class="tool-nav-sep">/</span>
+  <span class="tool-nav-current">APIGW API 관리</span>
+  <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;">🌙</button>
+</nav>
+
+<div id="app">
+  <div class="app">
+    <h1 style="font-size:1.4rem;font-weight:700;color:var(--color-text-heading);margin-bottom:4px;">APIGW API 관리</h1>
+    <p style="font-size:0.85rem;color:var(--color-text-muted);margin-bottom:20px;">webMethods API Gateway에 연결하여 API를 조회·추가·수정·삭제합니다.</p>
+
+    <!-- 연결 설정 -->
+    <div class="input-section">
+      <div class="conn-grid">
+        <div class="field">
+          <label style="display:flex;align-items:center;justify-content:space-between;">
+            Host URL
+            <span v-if="profilesError" style="font-size:0.72rem;color:var(--color-text-muted);">
+              {{ profilesError }}
+              <button @click="loadProfiles" style="color:var(--color-primary);background:none;border:none;cursor:pointer;padding:0;font-size:0.72rem;">재시도</button>
+            </span>
+          </label>
+          <div class="host-input-wrap">
+            <input v-model="host" type="text" placeholder="http://localhost:5555" @keydown.enter="connect" />
+            <button class="profile-icon-btn" @click="profileOpen = !profileOpen"
+                    :title="profiles.length ? '연결 프로파일 선택' : '프록시 서버 미실행'"
+                    :disabled="!profiles.length">
+              <span v-if="profilesLoading">⏳</span>
+              <span v-else>☰</span>
+            </button>
+            <!-- 프로파일 드롭다운 팝오버 -->
+            <div v-if="profileOpen && profiles.length" class="profile-popover">
+              <div v-for="p in profiles" :key="p.name"
+                   class="profile-item" @click="selectProfile(p)">
+                {{ p.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <input v-model="username" type="text" placeholder="Administrator" @keydown.enter="connect" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input v-model="password" type="password" placeholder="••••" @keydown.enter="connect" />
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" @click="connect" :disabled="connecting" style="width:100%;padding:8px 16px;">
+            <span v-if="connecting" class="spinner"></span>
+            {{ connecting ? '연결 중...' : (connected ? '🔄 새로고침' : '연결') }}
+          </button>
+        </div>
+      </div>
+      <div v-if="errorMsg" class="error-box" style="margin-top:12px;">{{ errorMsg }}</div>
+      <div v-if="connected" style="margin-top:10px;font-size:0.82rem;color:var(--color-success);">
+        ✓ {{ host }} 연결됨 — API {{ apis.length }}개
+      </div>
+    </div>
+
+    <!-- 메인 레이아웃 -->
+    <div class="main-layout" v-if="connected">
+
+      <!-- 좌측: API 목록 -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">API 목록</span>
+            <button class="btn btn-success" @click="openAddMode" style="font-size:0.8rem;padding:5px 12px;">+ 새 API 추가</button>
+          </div>
+          <div class="panel-body" style="padding:16px;">
+            <div class="list-toolbar">
+              <input class="search-input" v-model="searchText" placeholder="이름 또는 버전으로 검색…" />
+            </div>
+            <div v-if="filteredApis.length === 0" class="empty-state">
+              {{ searchText ? '검색 결과가 없습니다.' : 'API가 없습니다.' }}
+            </div>
+            <table v-else class="api-table">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>타입</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="api in filteredApis" :key="api.id"
+                    :class="{ selected: selectedApi && selectedApi.id === api.id }"
+                    @click="selectApi(api.id)">
+                  <td>
+                    <div class="api-name-cell">{{ api.apiName }}</div>
+                    <div class="api-ver">v{{ api.apiVersion }}</div>
+                  </td>
+                  <td><span class="badge badge-type">{{ api.type }}</span></td>
+                  <td>
+                    <span class="badge" :class="api.isActive ? 'badge-active' : 'badge-inactive'">
+                      {{ api.isActive ? '활성' : '비활성' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 상세 / 편집 / 추가 -->
+      <div>
+        <!-- 아무것도 선택 안 된 상태 -->
+        <div class="panel" v-if="!selectedApi && !addMode">
+          <div class="panel-body" style="padding:16px;">
+            <div class="panel-placeholder">
+              <div class="ph-icon">📋</div>
+              <span>왼쪽 목록에서 API를 선택하거나<br>새 API를 추가하세요.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 상세 / 편집 패널 -->
+        <div class="panel detail-panel" v-if="selectedApi && !addMode">
+          <div class="panel-header" style="flex-shrink:0;">
+            <span class="panel-title" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" :title="selectedApi.apiName">
+              {{ selectedApi.apiName }}
+            </span>
+            <button class="btn btn-ghost" @click="closeDetail" style="font-size:0.8rem;padding:4px 10px;">✕ 닫기</button>
+          </div>
+          <div style="padding:0 16px;flex-shrink:0;">
+            <div class="tab-bar">
+              <button class="tab-btn" :class="{ active: activeTab === 'detail' }" @click="activeTab = 'detail'">상세</button>
+              <button class="tab-btn" :class="{ active: activeTab === 'edit' }" @click="openEditTab">편집 (스펙 교체)</button>
+            </div>
+          </div>
+
+          <!-- 상세 탭 -->
+          <div class="panel-body" style="padding:0 16px 16px;" v-if="activeTab === 'detail'">
+            <div class="kv-grid">
+              <div class="kv-key">ID</div>
+              <div class="kv-val mono">{{ selectedApi.id }}</div>
+              <div class="kv-key">이름</div>
+              <div class="kv-val">{{ selectedApi.apiName }}</div>
+              <div class="kv-key">버전</div>
+              <div class="kv-val">{{ selectedApi.apiVersion }}</div>
+              <div class="kv-key">타입</div>
+              <div class="kv-val"><span class="badge badge-type">{{ selectedApi.type }}</span></div>
+              <div class="kv-key">상태</div>
+              <div class="kv-val">
+                <span class="badge" :class="selectedApi.isActive ? 'badge-active' : 'badge-inactive'">
+                  {{ selectedApi.isActive ? '활성' : '비활성' }}
+                </span>
+              </div>
+              <div class="kv-key">설명</div>
+              <div class="kv-val" style="white-space:pre-wrap;">{{ selectedApi.apiDescription || '—' }}</div>
+              <div class="kv-key">성숙도</div>
+              <div class="kv-val">{{ selectedApi.maturityState || '—' }}</div>
+              <div class="kv-key">소유자</div>
+              <div class="kv-val">{{ selectedApi.owner || '—' }}</div>
+              <div class="kv-key">생성일</div>
+              <div class="kv-val">{{ selectedApi.creationDate || '—' }}</div>
+              <div class="kv-key">엔드포인트</div>
+              <div class="kv-val mono">
+                <template v-if="selectedApi.nativeEndpoint && selectedApi.nativeEndpoint.length">
+                  <div v-for="ep in selectedApi.nativeEndpoint" :key="ep.uri" style="margin-bottom:2px;">{{ ep.uri }}</div>
+                </template>
+                <template v-else>—</template>
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="btn btn-primary" @click="toggleActive" :disabled="actionLoading" style="min-width:100px;">
+                <span v-if="actionLoading" class="spinner"></span>
+                {{ selectedApi.isActive ? '비활성화' : '활성화' }}
+              </button>
+              <button class="btn" :class="selectedApi.isActive ? '' : 'btn-ghost'"
+                      :disabled="selectedApi.isActive || actionLoading"
+                      :title="selectedApi.isActive ? '비활성화 후 삭제 가능' : ''"
+                      @click="deleteApi"
+                      style="min-width:80px;color:var(--color-error);">
+                삭제
+              </button>
+            </div>
+            <div v-if="actionError" class="error-box" style="margin-top:10px;">{{ actionError }}</div>
+          </div>
+
+          <!-- 편집 탭 (스펙 교체) -->
+          <div class="panel-body" style="padding:0 16px 16px;" v-if="activeTab === 'edit'">
+            <div style="font-size:0.82rem;color:var(--color-text-muted);margin-bottom:12px;">
+              OpenAPI / Swagger JSON 스펙을 업로드하거나 붙여넣으면 해당 API의 정의를 교체합니다.
+            </div>
+            <div class="dropzone" :class="{ 'drag-over': isDragging }"
+                 @click="$refs.editFileInput.click()"
+                 @dragover.prevent="isDragging = true"
+                 @dragleave="isDragging = false"
+                 @drop.prevent="onDropEdit">
+              <div class="dropzone-icon">📂</div>
+              <div>클릭하거나 JSON 파일을 드래그하세요</div>
+            </div>
+            <input ref="editFileInput" type="file" accept=".json" style="display:none;" @change="onFileEdit" />
+
+            <div class="field" style="margin-bottom:4px;">
+              <label>API 이름 <span style="font-size:0.75rem;color:var(--color-text-muted);font-weight:400;">(수정 불가)</span></label>
+              <input v-model="editForm.apiName" type="text" readonly
+                     style="background:var(--color-panel-header);color:var(--color-text-muted);cursor:not-allowed;" />
+            </div>
+
+            <div class="field" style="margin-bottom:10px;">
+              <label>또는 JSON 직접 붙여넣기</label>
+              <textarea v-model="editSpecText" rows="6" placeholder='{"openapi":"3.0.0","info":{...}}'
+                        @input="parseEditSpec"></textarea>
+            </div>
+
+            <template v-if="editParsed">
+              <div style="font-size:0.8rem;color:var(--color-success);margin-bottom:10px;">✓ 스펙 파싱 완료</div>
+              <div class="edit-grid">
+                <div class="field">
+                  <label>버전</label>
+                  <input v-model="editForm.apiVersion" type="text" />
+                </div>
+                <div class="field">
+                  <label>Native Endpoint URI</label>
+                  <input v-model="editForm.endpointUri" type="text" placeholder="https://api.example.com" />
+                </div>
+                <div class="field full">
+                  <label>설명</label>
+                  <textarea v-model="editForm.apiDescription" rows="2"></textarea>
+                </div>
+              </div>
+            </template>
+            <div v-if="editParseError" class="error-box"
+                 :style="{ marginBottom:'10px', background: editParsed ? 'var(--color-warning-bg)' : '', color: editParsed ? 'var(--color-warning)' : '' }">
+              {{ editParseError }}
+            </div>
+
+            <div class="action-row">
+              <button class="btn btn-primary" @click="saveEdit" :disabled="!editParsed || actionLoading">
+                <span v-if="actionLoading" class="spinner"></span>
+                저장
+              </button>
+              <button class="btn btn-ghost" @click="resetEditForm">초기화</button>
+            </div>
+            <div v-if="actionError" class="error-box" style="margin-top:10px;">{{ actionError }}</div>
+          </div>
+        </div>
+
+        <!-- 새 API 추가 패널 -->
+        <div class="panel" v-if="addMode">
+          <div class="panel-header" style="flex-shrink:0;">
+            <span class="panel-title">새 API 추가</span>
+            <button class="btn btn-ghost" @click="closeAdd" style="font-size:0.8rem;padding:4px 10px;">✕ 닫기</button>
+          </div>
+          <div class="panel-body" style="padding:16px;">
+            <div style="font-size:0.82rem;color:var(--color-text-muted);margin-bottom:12px;">
+              OpenAPI / Swagger JSON 스펙을 업로드하거나 붙여넣으면 API를 생성합니다.
+            </div>
+            <div class="dropzone" :class="{ 'drag-over': isDragging }"
+                 @click="$refs.addFileInput.click()"
+                 @dragover.prevent="isDragging = true"
+                 @dragleave="isDragging = false"
+                 @drop.prevent="onDropAdd">
+              <div class="dropzone-icon">📂</div>
+              <div>클릭하거나 JSON 파일을 드래그하세요</div>
+            </div>
+            <input ref="addFileInput" type="file" accept=".json" style="display:none;" @change="onFileAdd" />
+
+            <div class="field" style="margin-bottom:10px;">
+              <label>또는 JSON 직접 붙여넣기</label>
+              <textarea v-model="addSpecText" rows="6" placeholder='{"openapi":"3.0.0","info":{...}}'
+                        @input="parseAddSpec"></textarea>
+            </div>
+
+            <template v-if="addParsed">
+              <div style="font-size:0.8rem;color:var(--color-success);margin-bottom:10px;">✓ 스펙 파싱 완료</div>
+              <div class="edit-grid">
+                <div class="field">
+                  <label>API 이름</label>
+                  <input v-model="addForm.apiName" type="text" />
+                </div>
+                <div class="field">
+                  <label>버전</label>
+                  <input v-model="addForm.apiVersion" type="text" />
+                </div>
+                <div class="field full">
+                  <label>설명</label>
+                  <textarea v-model="addForm.apiDescription" rows="2"></textarea>
+                </div>
+                <div class="field full">
+                  <label>Native Endpoint URI</label>
+                  <input v-model="addForm.endpointUri" type="text" placeholder="https://api.example.com" />
+                </div>
+              </div>
+            </template>
+            <div v-if="addParseError" class="error-box"
+                 :style="{ marginBottom:'10px', background: addParsed ? 'var(--color-warning-bg)' : '', color: addParsed ? 'var(--color-warning)' : '' }">
+              {{ addParseError }}
+            </div>
+
+            <div class="action-row">
+              <button class="btn btn-success" @click="createApi" :disabled="!addParsed || actionLoading">
+                <span v-if="actionLoading" class="spinner"></span>
+                API 생성
+              </button>
+              <button class="btn btn-ghost" @click="resetAddForm">초기화</button>
+            </div>
+            <div v-if="actionError" class="error-box" style="margin-top:10px;">{{ actionError }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed, reactive, onMounted } = Vue;
+const PROXY = window.WEB_TOOLS_PROXY || 'http://localhost:3000';
+
+createApp({
+  setup() {
+    // ── 연결 프로파일 ──
+    const profiles        = ref([]);
+    const profileOpen     = ref(false);
+    const profilesLoading = ref(false);
+    const profilesError   = ref('');
+
+    async function loadProfiles() {
+      profilesLoading.value = true;
+      profilesError.value   = '';
+      try {
+        const res = await fetch(`${PROXY}/api/connections`);
+        if (res.ok) {
+          profiles.value = await res.json();
+        } else {
+          profilesError.value = `로드 실패 (HTTP ${res.status})`;
+        }
+      } catch {
+        profilesError.value = '프록시 미실행';
+      } finally {
+        profilesLoading.value = false;
+      }
+    }
+
+    function selectProfile(p) {
+      host.value    = p.host || host.value;
+      profileOpen.value = false;
+    }
+
+    // 팝오버 외부 클릭 시 닫기
+    onMounted(() => {
+      loadProfiles();
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.host-input-wrap')) profileOpen.value = false;
+      });
+    });
+
+    // ── 연결 상태 ──
+    const host       = ref(localStorage.getItem('wt-apigw-host') || 'http://localhost:5555');
+    const username   = ref(localStorage.getItem('wt-apigw-user') || '');
+    const password   = ref('');
+    const connected  = ref(false);
+    const connecting = ref(false);
+    const errorMsg   = ref('');
+
+    // ── 목록 ──
+    const apis       = ref([]);
+    const searchText = ref('');
+    const filteredApis = computed(() => {
+      const q = searchText.value.trim().toLowerCase();
+      if (!q) return apis.value;
+      return apis.value.filter(a =>
+        (a.apiName || '').toLowerCase().includes(q) ||
+        (a.apiVersion || '').toLowerCase().includes(q)
+      );
+    });
+
+    // ── 선택/모드 ──
+    const selectedApi  = ref(null);
+    const activeTab    = ref('detail');
+    const addMode      = ref(false);
+    const actionLoading = ref(false);
+    const actionError   = ref('');
+
+    // ── 드래그 상태 ──
+    const isDragging = ref(false);
+
+    // ── 편집 폼 ──
+    const editSpecText   = ref('');
+    const editParsed     = ref(null);
+    const editParseError = ref('');
+    const editForm = reactive({ apiName: '', apiVersion: '', apiDescription: '', endpointUri: '' });
+
+    // ── 추가 폼 ──
+    const addSpecText   = ref('');
+    const addParsed     = ref(null);
+    const addParseError = ref('');
+    const addForm = reactive({ apiName: '', apiVersion: '', apiDescription: '', endpointUri: '' });
+
+    // ── API Gateway 호출 helper ──
+    async function apigwFetch(path, method = 'GET', body = undefined) {
+      const auth = btoa(`${username.value}:${password.value}`);
+      const res = await fetch(`${PROXY}/proxy/forward`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: `${host.value}/rest/apigateway${path}`,
+          method,
+          headers: { Authorization: `Basic ${auth}` },
+          body,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        // API Gateway 400 응답은 다양한 필드를 사용하므로 폴백 체인 + 전체 JSON 표시
+        const msg = data?.message || data?.errorDescription || data?.description
+                 || data?.error || data?.errorDetails
+                 || (data ? JSON.stringify(data) : `HTTP ${res.status}`);
+        throw new Error(`HTTP ${res.status}: ${msg}`);
+      }
+      return data;
+    }
+
+    // ── 연결 / 목록 로드 ──
+    async function connect() {
+      connecting.value = true;
+      errorMsg.value   = '';
+      try {
+        const data = await apigwFetch('/apis');
+        apis.value   = (data.apiResponse || []).map(r => r.api).filter(Boolean);
+        localStorage.setItem('wt-apigw-host', host.value);
+        localStorage.setItem('wt-apigw-user', username.value);
+        connected.value = true;
+        selectedApi.value = null;
+        addMode.value = false;
+      } catch (e) {
+        if (e.name === 'TypeError' && e.message.includes('fetch')) {
+          errorMsg.value = '프록시 서버에 연결할 수 없습니다. server/ 폴더에서 npm start를 먼저 실행해주세요. (localhost:3000)';
+        } else {
+          errorMsg.value = e.message;
+        }
+        connected.value = false;
+      } finally {
+        connecting.value = false;
+      }
+    }
+
+    // ── API 선택 ──
+    async function selectApi(id) {
+      actionError.value = '';
+      addMode.value = false;
+      try {
+        const data = await apigwFetch(`/apis/${id}`);
+        selectedApi.value = data.apiResponse?.api || null;
+        activeTab.value = 'detail';
+        resetEditForm();
+      } catch (e) {
+        actionError.value = e.message;
+      }
+    }
+
+    function closeDetail() {
+      selectedApi.value = null;
+      actionError.value = '';
+    }
+
+    // ── 활성화 / 비활성화 ──
+    async function toggleActive() {
+      if (!selectedApi.value) return;
+      actionLoading.value = true;
+      actionError.value   = '';
+      const action = selectedApi.value.isActive ? 'deactivate' : 'activate';
+      try {
+        await apigwFetch(`/apis/${selectedApi.value.id}/${action}`, 'PUT');
+        await selectApi(selectedApi.value.id);
+        await refreshList();
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 삭제 ──
+    async function deleteApi() {
+      if (!selectedApi.value || selectedApi.value.isActive) return;
+      if (!confirm(`"${selectedApi.value.apiName}" API를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+      actionLoading.value = true;
+      actionError.value   = '';
+      try {
+        await apigwFetch(`/apis/${selectedApi.value.id}`, 'DELETE');
+        selectedApi.value = null;
+        await refreshList();
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 편집 탭 열기 ──
+    function openEditTab() {
+      activeTab.value = 'edit';
+      resetEditForm();
+      // 기존 API 정보로 폼 초기값 설정 (스펙 업로드 전에도 이름이 채워져 있어야 함)
+      if (selectedApi.value) {
+        editForm.apiName        = selectedApi.value.apiName        || '';
+        editForm.apiVersion     = selectedApi.value.apiVersion     || '';
+        editForm.apiDescription = selectedApi.value.apiDescription || '';
+        editForm.endpointUri    = selectedApi.value.nativeEndpoint?.[0]?.uri || '';
+      }
+    }
+
+    // ── 스펙 파싱 유틸 ──
+    function parseSpec(text) {
+      const spec = JSON.parse(text);
+      const info = spec.info || {};
+      let endpointUri = '';
+      if (spec.servers && spec.servers.length) {
+        endpointUri = spec.servers[0].url || '';
+      } else if (spec.host) {
+        const scheme = (spec.schemes && spec.schemes[0]) || 'http';
+        endpointUri = `${scheme}://${spec.host}${spec.basePath || '/'}`;
+      }
+      // OpenAPI 버전 경고 (API Gateway는 3.0.x까지 공식 지원)
+      let versionWarn = '';
+      const ov = spec.openapi || '';
+      if (ov.startsWith('3.1')) {
+        versionWarn = `경고: OpenAPI ${ov} 스펙입니다. webMethods API Gateway는 3.0.x까지만 공식 지원합니다. 업로드가 실패하면 3.0.x 버전으로 변환 후 시도하세요.`;
+      }
+      return { spec, info, endpointUri, versionWarn };
+    }
+
+    // ── 스펙 타입 자동 감지 ──
+    // API Gateway multipart 업로드의 type 파라미터: swagger | openapi | raml | wsdl
+    function detectSpecType(spec) {
+      if (spec.swagger && String(spec.swagger).startsWith('2')) return 'swagger';
+      if (spec.openapi) return 'openapi';
+      return 'openapi';
+    }
+
+    // ── upload-api 공통 호출 ──
+    async function uploadApiSpec({ url, method, specText, parsedSpec, form }) {
+      const auth = 'Basic ' + btoa(`${username.value}:${password.value}`);
+      const specType = detectSpecType(parsedSpec);
+      const res = await fetch(`${PROXY}/proxy/upload-api`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          method,
+          auth,
+          specText,
+          apiName:        form.apiName,
+          apiVersion:     form.apiVersion,
+          apiDescription: form.apiDescription,
+          specType,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const msg = data?.message || data?.errorDescription || data?.description
+                 || data?.error || data?.errorDetails
+                 || (data ? JSON.stringify(data) : `HTTP ${res.status}`);
+        throw new Error(`HTTP ${res.status}: ${msg}`);
+      }
+      return data;
+    }
+
+    function fillForm(form, info, endpointUri) {
+      form.apiName        = info.title       || '';
+      form.apiVersion     = info.version     || '';
+      form.apiDescription = info.description || '';
+      form.endpointUri    = endpointUri;
+    }
+
+    // ── 편집 스펙 파싱 ──
+    function parseEditSpec() {
+      editParseError.value = '';
+      editParsed.value     = null;
+      if (!editSpecText.value.trim()) return;
+      try {
+        const { spec, info, endpointUri, versionWarn } = parseSpec(editSpecText.value);
+        editParsed.value = spec;
+        // apiName은 기존 API 이름 유지 — 스펙의 info.title로 덮어쓰지 않음
+        editForm.apiVersion     = info.version     || editForm.apiVersion;
+        editForm.apiDescription = info.description || editForm.apiDescription;
+        editForm.endpointUri    = endpointUri       || editForm.endpointUri;
+        if (versionWarn) editParseError.value = versionWarn;
+      } catch {
+        editParseError.value = 'JSON 파싱 오류: 올바른 OpenAPI/Swagger JSON인지 확인하세요.';
+      }
+    }
+
+    function onDropEdit(e) {
+      isDragging.value = false;
+      const file = e.dataTransfer.files[0];
+      if (file) loadFileIntoEdit(file);
+    }
+    function onFileEdit(e) {
+      const file = e.target.files[0];
+      if (file) loadFileIntoEdit(file);
+      e.target.value = '';
+    }
+    function loadFileIntoEdit(file) {
+      const reader = new FileReader();
+      reader.onload = ev => { editSpecText.value = ev.target.result; parseEditSpec(); };
+      reader.readAsText(file);
+    }
+
+    function resetEditForm() {
+      editSpecText.value = '';
+      editParsed.value   = null;
+      editParseError.value = '';
+      editForm.apiName = editForm.apiVersion = editForm.apiDescription = editForm.endpointUri = '';
+    }
+
+    // ── 저장 (PUT) — multipart 파일 업로드 방식 ──
+    async function saveEdit() {
+      if (!editParsed.value || !selectedApi.value) return;
+      actionLoading.value = true;
+      actionError.value   = '';
+      try {
+        await uploadApiSpec({
+          url:        `${host.value}/rest/apigateway/apis/${selectedApi.value.id}`,
+          method:     'PUT',
+          specText:   editSpecText.value,
+          parsedSpec: editParsed.value,
+          form:       editForm,
+        });
+        await selectApi(selectedApi.value.id);
+        await refreshList();
+        activeTab.value = 'detail';
+        resetEditForm();
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 추가 모드 ──
+    function openAddMode() {
+      addMode.value = true;
+      selectedApi.value = null;
+      actionError.value = '';
+      resetAddForm();
+    }
+    function closeAdd() {
+      addMode.value = false;
+      actionError.value = '';
+    }
+
+    // ── 추가 스펙 파싱 ──
+    function parseAddSpec() {
+      addParseError.value = '';
+      addParsed.value     = null;
+      if (!addSpecText.value.trim()) return;
+      try {
+        const { spec, info, endpointUri, versionWarn } = parseSpec(addSpecText.value);
+        addParsed.value = spec;
+        fillForm(addForm, info, endpointUri);
+        if (versionWarn) addParseError.value = versionWarn;
+      } catch {
+        addParseError.value = 'JSON 파싱 오류: 올바른 OpenAPI/Swagger JSON인지 확인하세요.';
+      }
+    }
+
+    function onDropAdd(e) {
+      isDragging.value = false;
+      const file = e.dataTransfer.files[0];
+      if (file) loadFileIntoAdd(file);
+    }
+    function onFileAdd(e) {
+      const file = e.target.files[0];
+      if (file) loadFileIntoAdd(file);
+      e.target.value = '';
+    }
+    function loadFileIntoAdd(file) {
+      const reader = new FileReader();
+      reader.onload = ev => { addSpecText.value = ev.target.result; parseAddSpec(); };
+      reader.readAsText(file);
+    }
+
+    function resetAddForm() {
+      addSpecText.value = '';
+      addParsed.value   = null;
+      addParseError.value = '';
+      addForm.apiName = addForm.apiVersion = addForm.apiDescription = addForm.endpointUri = '';
+    }
+
+    // ── 생성 (POST) — multipart 파일 업로드 방식 ──
+    async function createApi() {
+      if (!addParsed.value) return;
+      actionLoading.value = true;
+      actionError.value   = '';
+      try {
+        const result = await uploadApiSpec({
+          url:        `${host.value}/rest/apigateway/apis`,
+          method:     'POST',
+          specText:   addSpecText.value,
+          parsedSpec: addParsed.value,
+          form:       addForm,
+        });
+        const newApi = result.apiResponse?.api;
+        await refreshList();
+        addMode.value = false;
+        resetAddForm();
+        if (newApi?.id) await selectApi(newApi.id);
+      } catch (e) {
+        actionError.value = e.message;
+      } finally {
+        actionLoading.value = false;
+      }
+    }
+
+    // ── 목록 새로고침 ──
+    async function refreshList() {
+      try {
+        const data = await apigwFetch('/apis');
+        apis.value = (data.apiResponse || []).map(r => r.api).filter(Boolean);
+      } catch {}
+    }
+
+    return {
+      profiles, profileOpen, profilesLoading, profilesError, selectProfile, loadProfiles,
+      host, username, password, connected, connecting, errorMsg,
+      apis, searchText, filteredApis,
+      selectedApi, activeTab, addMode, actionLoading, actionError,
+      isDragging,
+      editSpecText, editParsed, editParseError, editForm,
+      addSpecText, addParsed, addParseError, addForm,
+      connect, selectApi, closeDetail,
+      toggleActive, deleteApi,
+      openEditTab, parseEditSpec, onDropEdit, onFileEdit, resetEditForm, saveEdit,
+      openAddMode, closeAdd, parseAddSpec, onDropAdd, onFileAdd, resetAddForm, createApi,
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

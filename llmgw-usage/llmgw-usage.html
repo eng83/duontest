@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Gateway 사용량 조회</title>
+  <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/js/theme.js" defer></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px 24px;
+      min-height: 100vh;
+    }
+
+    /* ── 중앙 카드 ── */
+    .card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--color-text-heading);
+      margin-bottom: 6px;
+    }
+
+    .card .subtitle {
+      font-size: 0.82rem;
+      color: var(--color-text-muted);
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--color-text-label);
+      margin-bottom: 6px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    input[type="password"], input[type="text"], select {
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--color-text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="password"], input[type="text"] { flex: 1; }
+    select { cursor: pointer; }
+    input:focus, select:focus { border-color: var(--color-primary); }
+
+    .toggle-btn {
+      background: var(--color-border);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: 8px;
+      color: var(--color-text-label);
+      cursor: pointer;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      transition: background 0.15s, opacity 0.15s, transform 0.1s;
+    }
+    .toggle-btn:hover { opacity: 0.85; }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 0;
+    }
+
+    .fetch-btn {
+      flex: 1;
+      background: var(--color-primary);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 12px;
+      transition: opacity 0.15s;
+    }
+    .fetch-btn:hover { opacity: 0.87; }
+    .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .refresh-btn {
+      background: transparent;
+      border: 1px solid var(--color-primary);
+      border-radius: 8px;
+      color: var(--color-primary);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 12px 16px;
+      white-space: nowrap;
+      transition: background 0.15s, opacity 0.15s, transform 0.1s;
+    }
+    .refresh-btn:hover { background: var(--color-primary); color: white; opacity: 1; }
+    .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── 자동 새로고침 설정 행 ── */
+    .interval-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+    }
+
+    .interval-row span {
+      font-size: 0.82rem;
+      color: var(--color-text-label);
+      white-space: nowrap;
+    }
+
+    .interval-row select { padding: 4px 10px; font-size: 0.82rem; }
+
+    .interval-status {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+
+    .interval-status.active { color: var(--color-success); }
+
+    /* ── 카운트다운 바 ── */
+    .countdown-bar-wrap {
+      margin-top: 6px;
+      height: 2px;
+      background: var(--color-border-subtle);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .countdown-bar {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: 99px;
+      transition: width 1s linear;
+    }
+
+    /* ── 결과 카드 ── */
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      display: none;
+    }
+    .result.visible { display: block; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .result .label {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .last-updated {
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+    }
+
+    .spend-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .spend-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .spend-max {
+      font-size: 1rem;
+      color: var(--color-text-muted);
+    }
+
+    .progress-wrap {
+      background: var(--color-border-subtle);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--color-primary);
+      transition: width 0.6s ease;
+    }
+    .progress-bar.warn { background: #f59e0b; }
+    .progress-bar.over { background: var(--color-error); }
+
+    /* ── 다크: progress bar gradient ── */
+    [data-theme="dark"] .progress-bar        { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+    [data-theme="dark"] .progress-bar.warn   { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    [data-theme="dark"] .progress-bar.over   { background: #ef4444; }
+
+    .progress-label {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    /* ── 에러 메시지 ── */
+    .error-msg {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--color-error-bg);
+      border: 1px solid var(--color-error-text);
+      border-radius: 8px;
+      color: var(--color-error-text);
+      font-size: 0.85rem;
+      display: none;
+      white-space: pre-line;
+    }
+    .error-msg.visible { display: block; }
+
+    .cors-note {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── 스피너 ── */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── 커맨드 블록 ── */
+    .cmd-block {
+      margin-bottom: 20px;
+      padding: 12px 14px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+    }
+    .cmd-block-label {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+    .cmd-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cmd-text {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--color-primary);
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--color-primary);
+      border-radius: 6px;
+      color: var(--color-primary);
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      white-space: nowrap;
+      transition: background 0.15s, opacity 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+    .copy-btn:hover { background: var(--color-primary); color: white; opacity: 1; }
+    .copy-btn.copied { color: var(--color-success); border-color: var(--color-success); }
+  </style>
+</head>
+<body>
+<nav class="tool-nav" style="position:fixed; top:0; left:0; right:0; z-index:100;">
+  <a href="../index.html">← Web Tools</a>
+  <span class="tool-nav-sep">/</span>
+  <span class="tool-nav-current">LLM Gateway 사용량</span>
+  <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;">🌙</button>
+</nav>
+
+<div class="card">
+  <h1>LLM Gateway 사용량 조회</h1>
+  <p class="subtitle">llmgw.hd.com — /user/info</p>
+
+  <div class="cmd-block">
+    <div class="cmd-block-label">API Key 조회 (PowerShell)</div>
+    <div class="cmd-row">
+      <span class="cmd-text" id="psCmd">& "$env:USERPROFILE\.claude\set-claude-code.ps1" -key</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyCmd()">복사</button>
+    </div>
+  </div>
+
+  <label for="apiKey">API Key</label>
+  <div class="input-row">
+    <input type="password" id="apiKey" value="sk-RONPW6MGl2bxa3cp7BOl_A" autocomplete="off">
+    <button class="toggle-btn" id="toggleBtn" onclick="toggleVisibility()">표시</button>
+  </div>
+
+  <div class="btn-row">
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchUsage()">조회</button>
+    <button class="refresh-btn" id="refreshBtn" onclick="fetchUsage()" title="즉시 새로고침">↻ 즉시</button>
+  </div>
+
+  <!-- 자동 새로고침 설정 -->
+  <div class="interval-row">
+    <span>자동 새로고침</span>
+    <select id="intervalSelect" onchange="onIntervalChange()">
+      <option value="0">끄기</option>
+      <option value="60">1분</option>
+      <option value="300">5분</option>
+      <option value="600" selected>10분</option>
+      <option value="1800">30분</option>
+      <option value="3600">1시간</option>
+    </select>
+    <span class="interval-status" id="intervalStatus">대기 중</span>
+  </div>
+  <div class="countdown-bar-wrap">
+    <div class="countdown-bar" id="countdownBar" style="width:100%"></div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-header">
+      <div class="label">누적 사용량</div>
+      <div class="last-updated" id="lastUpdated"></div>
+    </div>
+    <div class="spend-row">
+      <span class="spend-value" id="spendValue">-</span>
+      <span class="spend-max" id="spendMax">/ $-</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <p class="cors-note">
+    ※ 브라우저 보안 정책(CORS)으로 요청이 차단될 경우,<br>
+    같은 도메인의 서버를 경유하거나 브라우저 확장(CORS Unblock 등)을 사용하세요.
+  </p>
+</div>
+
+<script>
+  const API_URL = 'https://llmgw.hd.com/user/info';
+
+  function copyCmd() {
+    const text = document.getElementById('psCmd').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '복사됨';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+    });
+  }
+
+  let refreshTimer = null;
+  let countdownTimer = null;
+  let countdownRemaining = 0;
+  let countdownTotal = 0;
+
+  window.addEventListener('load', () => { startAutoRefresh(600); });
+
+  function toggleVisibility() {
+    const input = document.getElementById('apiKey');
+    const btn = document.getElementById('toggleBtn');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '숨김';
+    } else {
+      input.type = 'password';
+      btn.textContent = '표시';
+    }
+  }
+
+  function onIntervalChange() {
+    const sec = parseInt(document.getElementById('intervalSelect').value, 10);
+    stopAutoRefresh();
+    if (sec > 0) startAutoRefresh(sec);
+  }
+
+  function startAutoRefresh(sec) {
+    stopAutoRefresh();
+    if (sec <= 0) { updateIntervalStatus(false); return; }
+    countdownTotal = sec;
+    countdownRemaining = sec;
+    updateIntervalStatus(true, sec);
+    updateCountdownBar();
+    countdownTimer = setInterval(() => {
+      countdownRemaining--;
+      updateCountdownBar();
+      if (countdownRemaining <= 0) {
+        fetchUsage();
+        countdownRemaining = countdownTotal;
+      }
+      updateIntervalStatus(true, countdownRemaining);
+    }, 1000);
+  }
+
+  function stopAutoRefresh() {
+    if (refreshTimer)  { clearInterval(refreshTimer);  refreshTimer = null; }
+    if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
+    document.getElementById('countdownBar').style.width = '100%';
+    updateIntervalStatus(false);
+  }
+
+  function updateCountdownBar() {
+    const pct = countdownTotal > 0 ? (countdownRemaining / countdownTotal) * 100 : 0;
+    document.getElementById('countdownBar').style.width = pct + '%';
+  }
+
+  function updateIntervalStatus(active, remainSec) {
+    const el = document.getElementById('intervalStatus');
+    if (!active) {
+      el.textContent = '꺼짐';
+      el.className = 'interval-status';
+    } else {
+      el.textContent = remainSec != null ? `${formatSec(remainSec)} 후 갱신` : '활성';
+      el.className = 'interval-status active';
+    }
+  }
+
+  function formatSec(sec) {
+    if (sec >= 3600) return `${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`;
+    if (sec >= 60)   return `${Math.floor(sec/60)}m ${sec%60}s`;
+    return `${sec}s`;
+  }
+
+  async function fetchUsage() {
+    const key = document.getElementById('apiKey').value.trim();
+    const fetchBtn = document.getElementById('fetchBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const errorEl = document.getElementById('errorMsg');
+
+    errorEl.classList.remove('visible');
+
+    if (!key) { showError('API Key를 입력해 주세요.'); return; }
+
+    fetchBtn.disabled = true;
+    refreshBtn.disabled = true;
+    fetchBtn.innerHTML = '<span class="spinner"></span>조회 중...';
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${key}` }
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      renderResult(data.user_info);
+    } catch (err) {
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        showError('네트워크 오류: CORS 정책으로 차단되었거나 서버에 연결할 수 없습니다.\n' + err.message);
+      } else {
+        showError(err.message);
+      }
+    } finally {
+      fetchBtn.disabled = false;
+      refreshBtn.disabled = false;
+      fetchBtn.textContent = '조회';
+    }
+  }
+
+  function renderResult(info) {
+    const spend = Math.round(info.spend * 100) / 100;
+    const max = info.max_budget;
+    const pct = max > 0 ? Math.min((spend / max) * 100, 100) : 0;
+
+    document.getElementById('spendValue').textContent =
+      `$${spend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('spendMax').textContent = `/ $${Number(max).toLocaleString('en-US')}`;
+    document.getElementById('progressLabel').textContent = `${pct.toFixed(1)}% 사용`;
+    document.getElementById('lastUpdated').textContent = `갱신: ${new Date().toLocaleTimeString('ko-KR')}`;
+
+    const bar = document.getElementById('progressBar');
+    bar.style.width = pct + '%';
+    bar.className = 'progress-bar' + (pct >= 90 ? ' over' : pct >= 70 ? ' warn' : '');
+
+    document.getElementById('result').classList.add('visible');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+
+  document.getElementById('apiKey').addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchUsage();
+  });
+</script>
+
+</body>
+</html>

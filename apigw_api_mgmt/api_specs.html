@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APIGW API 스펙 참조</title>
+  <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
+  <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/js/theme.js" defer></script>
+  <style>
+    .app { max-width: 1400px; padding: 24px 24px 60px; }
+
+    /* 검색 */
+    .search-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--color-bg);
+      padding: 12px 0;
+      margin-bottom: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      padding: 9px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-card);
+      color: var(--color-text);
+      font-size: 0.9rem;
+    }
+    .search-input:focus { outline: none; border-color: var(--color-primary); }
+    .match-count { font-size: 0.82rem; color: var(--color-text-muted); white-space: nowrap; }
+
+    /* 서비스 섹션 */
+    .service-section { margin-bottom: 28px; }
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--color-panel-header);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    .service-header:hover { opacity: 0.85; }
+    .service-name { font-weight: 700; font-size: 0.95rem; color: var(--color-text-heading); flex: 1; }
+    .service-base { font-size: 0.78rem; color: var(--color-text-muted); font-family: var(--font-mono); }
+    .service-count {
+      font-size: 0.72rem; font-weight: 700; color: #fff;
+      background: var(--color-primary); border-radius: 10px; padding: 2px 8px;
+    }
+    .collapse-icon { font-size: 0.72rem; color: var(--color-text-muted); }
+
+    /* API 테이블 */
+    .api-table-wrap {
+      border: 1px solid var(--color-border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      overflow: hidden;
+    }
+    .api-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .api-table tr:not(:last-child) td { border-bottom: 1px solid var(--color-border-subtle); }
+    .api-table tr.hidden { display: none; }
+    .api-table td { padding: 8px 12px; vertical-align: middle; }
+    .api-table td:first-child { width: 100px; }
+    .api-table td:nth-child(2) { width: 340px; font-family: var(--font-mono); font-size: 0.79rem; color: var(--color-text); }
+    .api-table td:nth-child(3) { color: var(--color-text-label); }
+    .api-table tr:hover td { background: color-mix(in srgb, var(--color-primary) 4%, transparent); }
+
+    .method {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 4px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.04em; min-width: 52px; text-align: center;
+    }
+    .m-get    { background: #e3f2fd; color: #1565c0; }
+    .m-post   { background: #e8f5e9; color: #2e7d32; }
+    .m-put    { background: #fff3e0; color: #e65100; }
+    .m-patch  { background: #f3e5f5; color: #6a1b9a; }
+    .m-delete { background: #fce4ec; color: #c62828; }
+    .m-multi  { background: var(--color-border-subtle); color: var(--color-text-label); }
+
+    [data-theme="dark"] .m-get    { background: #0d2137; color: #64b5f6; }
+    [data-theme="dark"] .m-post   { background: #0d2b0d; color: #81c784; }
+    [data-theme="dark"] .m-put    { background: #2b1a00; color: #ffb74d; }
+    [data-theme="dark"] .m-patch  { background: #1e0d2b; color: #ce93d8; }
+    [data-theme="dark"] .m-delete { background: #2b0d0d; color: #ef9a9a; }
+    [data-theme="dark"] .m-multi  { background: #2a2a3a; color: #aaa; }
+
+    .highlight { background: rgba(255,220,0,0.35); border-radius: 2px; }
+    [data-theme="dark"] .highlight { background: rgba(255,200,0,0.2); }
+
+    .no-results { text-align: center; padding: 60px 20px; color: var(--color-text-muted); }
+  </style>
+</head>
+<body>
+
+<nav class="tool-nav">
+  <a href="../index.html">← Web Tools</a>
+  <span class="tool-nav-sep">/</span>
+  <span class="tool-nav-current">APIGW API 스펙 참조</span>
+  <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto;">🌙</button>
+</nav>
+
+<div class="app">
+  <h1 style="font-size:1.4rem;font-weight:700;color:var(--color-text-heading);margin-bottom:4px;">APIGW API 스펙 참조</h1>
+  <p style="font-size:0.85rem;color:var(--color-text-muted);margin-bottom:16px;">webMethods API Gateway 11.0 · Swagger 2.0 · basePath: <code style="font-family:var(--font-mono);font-size:0.82rem;">/rest/apigateway</code></p>
+
+  <div class="search-bar">
+    <input class="search-input" id="searchInput" type="text" placeholder="경로 또는 설명으로 검색…" oninput="doSearch(this.value)" />
+    <span class="match-count" id="matchCount"></span>
+  </div>
+
+  <div id="container"></div>
+  <div class="no-results" id="noResults" style="display:none;">검색 결과가 없습니다.</div>
+</div>
+
+<script>
+const SERVICES = [
+  {
+    name: 'API 관리 (Service Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/apis',                              '전체 또는 일부 API 목록 조회'],
+      ['POST',   '/apis',                              'API 생성 (파일/URL/직접 입력)'],
+      ['DELETE', '/apis',                              '복수 비활성 API 일괄 삭제'],
+      ['GET',    '/apis/{apiId}',                      '특정 API 상세 조회'],
+      ['PUT',    '/apis/{apiId}',                      '특정 API 수정 (스펙 교체)'],
+      ['DELETE', '/apis/{apiId}',                      '특정 API 삭제'],
+      ['PUT',    '/apis/{apiId}/activate',             'API 활성화'],
+      ['PUT',    '/apis/{apiId}/deactivate',           'API 비활성화'],
+      ['GET',    '/apis/{apiId}/applications',         'API에 등록된 애플리케이션 목록 조회'],
+      ['GET',    '/apis/{apiId}/gatewayEndpoints',     '게이트웨이 엔드포인트 조회'],
+      ['GET',    '/apis/{apiId}/globalPolicies',       'API에 적용된 글로벌 정책 조회'],
+      ['PUT',    '/apis/{apiId}/implementation',       'API 구현 정보 수정'],
+      ['PUT',    '/apis/{apiId}/mock/enable',          'Mock 모드 활성화'],
+      ['PUT',    '/apis/{apiId}/mock/disable',         'Mock 모드 비활성화'],
+      ['GET',    '/apis/{apiId}/packages',             'API에 연결된 패키지 목록 조회'],
+      ['GET',    '/apis/{apiId}/providerspecification','API 공급자 스펙 조회'],
+      ['PUT',    '/apis/{apiId}/publish',              'API를 포털에 게시'],
+      ['PUT',    '/apis/{apiId}/unpublish',            '포털에서 API 게시 취소'],
+      ['GET',    '/apis/{apiId}/scopes',               'API 스코프 목록 조회'],
+      ['GET',    '/apis/{apiId}/scopes/{scopeName}',   '특정 스코프 조회'],
+      ['PUT',    '/apis/{apiId}/scopes/{scopeName}',   '특정 스코프 수정'],
+      ['DELETE', '/apis/{apiId}/scopes/{scopeName}',   '특정 스코프 삭제'],
+      ['GET',    '/apis/{apiId}/source',               'API 소스(Swagger/WSDL) 조회'],
+      ['PUT',    '/apis/{apiId}/tracing/enable',       '추적 활성화'],
+      ['PUT',    '/apis/{apiId}/tracing/disable',      '추적 비활성화'],
+      ['GET',    '/apis/{apiId}/versions',             'API 버전 목록 조회'],
+      ['POST',   '/apis/{apiId}/versions',             '새 API 버전 생성'],
+      ['GET',    '/scopes',                            '전체 OAuth 스코프 목록 조회'],
+      ['POST',   '/scopes',                            'OAuth 스코프 생성'],
+      ['GET',    '/scopes/{oauthScopeId}',             '특정 OAuth 스코프 조회'],
+      ['PUT',    '/scopes/{oauthScopeId}',             '특정 OAuth 스코프 수정'],
+      ['DELETE', '/scopes/{oauthScopeId}',             '특정 OAuth 스코프 삭제'],
+      ['GET',    '/integrationServer/publish',         'Integration Server 게시 정보 조회'],
+      ['POST',   '/integrationServer/publish',         'Integration Server에 API 게시'],
+      ['GET',    '/serviceRegistry/publish',           'Service Registry 게시 정보 조회'],
+      ['POST',   '/serviceRegistry/publish',           'Service Registry에 API 등록'],
+      ['POST',   '/serviceRegistry/unpublish',         'Service Registry에서 API 등록 해제'],
+      ['POST',   '/tracer/archive',                    '추적 데이터 아카이브'],
+      ['POST',   '/tracer/import',                     '추적 데이터 임포트'],
+      ['GET',    '/tracer/{correlationID}',            '상관 ID로 추적 조회'],
+    ]
+  },
+  {
+    name: '사용자 관리 (User Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/users',                             '전체 사용자 목록 조회'],
+      ['POST',   '/users',                             '새 사용자 생성'],
+      ['GET',    '/users/{userId}',                    '특정 사용자 상세 조회'],
+      ['PUT',    '/users/{userId}',                    '특정 사용자 수정 (비밀번호·active 포함)'],
+      ['DELETE', '/users/{userId}',                    '특정 사용자 삭제'],
+      ['POST',   '/users/authenticate',                '사용자 인증 확인'],
+      ['GET',    '/groups',                            '전체 그룹 목록 조회'],
+      ['POST',   '/groups',                            '새 그룹 생성'],
+      ['GET',    '/groups/{groupId}',                  '특정 그룹 상세 조회'],
+      ['PUT',    '/groups/{groupId}',                  '특정 그룹 수정'],
+      ['DELETE', '/groups/{groupId}',                  '특정 그룹 삭제'],
+      ['GET',    '/accessProfiles',                    '전체 팀(Access Profile) 목록 조회'],
+      ['POST',   '/accessProfiles',                    '새 팀 생성'],
+      ['GET',    '/accessProfiles/{accessProfileId}',  '특정 팀 상세 조회'],
+      ['PUT',    '/accessProfiles/{accessProfileId}',  '특정 팀 수정'],
+      ['DELETE', '/accessProfiles/{accessProfileId}',  '특정 팀 삭제'],
+      ['GET',    '/is/lockedAccounts',                 '잠긴 계정 목록 조회'],
+      ['POST',   '/is/lockedAccounts',                 '잠긴 계정 잠금 해제'],
+      ['GET',    '/installedLanguages',                '설치된 언어팩 목록 조회'],
+      ['POST',   '/authenticate',                      '사용자 인증 (구버전)'],
+    ]
+  },
+  {
+    name: '애플리케이션 관리 (Application Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/applications',                          '전체 애플리케이션 목록 조회'],
+      ['POST',   '/applications',                          '새 애플리케이션 생성'],
+      ['DELETE', '/applications',                          '복수 애플리케이션 일괄 삭제'],
+      ['GET',    '/applications/{applicationId}',          '특정 애플리케이션 상세 조회'],
+      ['PUT',    '/applications/{applicationId}',          '특정 애플리케이션 수정'],
+      ['DELETE', '/applications/{applicationId}',          '특정 애플리케이션 삭제'],
+      ['PATCH',  '/applications/{applicationId}',          '애플리케이션 정지(suspend) 상태 변경'],
+      ['GET',    '/applications/{applicationId}/accessTokens', '액세스 토큰 엔드포인트 목록 조회'],
+      ['POST',   '/applications/{applicationId}/accessTokens', '액세스 토큰 재생성'],
+      ['PUT',    '/applications/accessTokens',             '전체 API 키 만료일 일괄 업데이트'],
+      ['GET',    '/applications/{applicationId}/apis',     '애플리케이션에 등록된 API 목록 조회'],
+      ['POST',   '/applications/{applicationId}/apis',     '등록 API 목록 추가'],
+      ['PUT',    '/applications/{applicationId}/apis',     '등록 API 목록 수정'],
+      ['GET',    '/strategies',                            '전체 인증 전략 목록 조회'],
+      ['POST',   '/strategies',                            '새 인증 전략 생성'],
+      ['GET',    '/strategies/{strategyId}',               '특정 전략 상세 조회'],
+      ['PUT',    '/strategies/{strategyId}',               '특정 전략 수정'],
+      ['DELETE', '/strategies/{strategyId}',               '특정 전략 삭제'],
+      ['PUT',    '/strategies/{strategyId}/refreshCredentials', '전략 자격증명 갱신 (DCR)'],
+    ]
+  },
+  {
+    name: '정책 관리 (Policy Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/policies',                          '전체 정책 목록 조회'],
+      ['POST',   '/policies',                          '새 정책 생성 또는 클론'],
+      ['GET',    '/policies/{policyId}',               '특정 정책 상세 조회'],
+      ['PUT',    '/policies/{policyId}',               '특정 정책 수정'],
+      ['DELETE', '/policies/{policyId}',               '특정 정책 삭제'],
+      ['PUT',    '/policies/{policyId}/activate',      '정책 활성화'],
+      ['PUT',    '/policies/{policyId}/deactivate',    '정책 비활성화'],
+      ['PUT',    '/policies/{policyId}/enable',        '정책 Enable'],
+      ['PUT',    '/policies/{policyId}/disable',       '정책 Disable'],
+      ['PUT',    '/policies/{policyId}/moveup',        '정책 우선순위 높이기'],
+      ['PUT',    '/policies/{policyId}/movedown',      '정책 우선순위 낮추기'],
+      ['GET',    '/policies/{policyId}/apis',          '정책이 적용된 API 목록 조회'],
+      ['GET',    '/policies/{policyId}/conflicts',     '정책 충돌 조회'],
+      ['GET',    '/policyActions',                     '전체 정책 액션 목록 조회'],
+      ['POST',   '/policyActions',                     '새 정책 액션 생성'],
+      ['GET',    '/policyActions/{policyActionId}',    '특정 정책 액션 조회'],
+      ['PUT',    '/policyActions/{policyActionId}',    '특정 정책 액션 수정'],
+      ['DELETE', '/policyActions/{policyActionId}',    '특정 정책 액션 삭제'],
+      ['GET',    '/policyActionTemplates',             '정책 액션 템플릿 목록 조회'],
+      ['GET',    '/policyActionTemplates/{id}',        '특정 정책 액션 템플릿 조회'],
+      ['GET',    '/policyStages',                      '정책 스테이지 목록 조회'],
+      ['GET',    '/assertions',                        'WS-Security 커스텀 어설션 목록 조회'],
+      ['POST',   '/assertions',                        '새 커스텀 어설션 생성'],
+      ['GET',    '/assertions/{assertionId}',          '특정 어설션 조회'],
+      ['PUT',    '/assertions/{assertionId}',          '특정 어설션 수정'],
+      ['DELETE', '/assertions/{assertionId}',          '특정 어설션 삭제'],
+      ['GET',    '/serviceResultCache',                '서비스 결과 캐시 목록 조회'],
+      ['DELETE', '/serviceResultCache',                '서비스 결과 캐시 전체 삭제'],
+      ['GET',    '/serviceResultCache/{apiId}',        '특정 API 캐시 조회'],
+      ['DELETE', '/serviceResultCache/{apiId}',        '특정 API 캐시 삭제'],
+      ['GET',    '/denialofservice/deniedIP',          '차단된 IP 목록 조회'],
+      ['DELETE', '/denialofservice/deniedIP',          '차단 IP 목록에서 IP 제거'],
+      ['GET',    '/configurations/mobileApp',          '모바일 앱 설정 조회'],
+      ['PUT',    '/configurations/mobileApp',          '모바일 앱 설정 수정'],
+    ]
+  },
+  {
+    name: '앨리어스 관리 (Alias Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/alias',            '전체 앨리어스 목록 조회'],
+      ['POST',   '/alias',            '새 앨리어스 생성'],
+      ['GET',    '/alias/{aliasId}',  '특정 앨리어스 상세 조회'],
+      ['PUT',    '/alias/{aliasId}',  '특정 앨리어스 수정'],
+      ['DELETE', '/alias/{aliasId}',  '특정 앨리어스 삭제'],
+    ]
+  },
+  {
+    name: '관리 설정 (Administration)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET/PUT', '/configurations/passwordRestrictions',        '비밀번호 제한 정책 조회/수정'],
+      ['GET/PUT', '/configurations/passwordExpiry',              '비밀번호 만료 설정 조회/수정'],
+      ['GET/PUT', '/configurations/accountLockSettings',         '계정 잠금 설정 조회/수정'],
+      ['GET/PUT', '/configurations/ldapConfig',                  'LDAP 디렉터리 설정 조회/수정'],
+      ['GET/PUT', '/configurations/loadBalancer',                '로드밸런서 설정 조회/수정'],
+      ['GET/PUT', '/configurations/logConfig',                   '로그 설정 조회/수정'],
+      ['GET/PUT', '/configurations/cache',                       '캐시 설정 조회/수정'],
+      ['GET/PUT', '/configurations/settings',                    '일반 시스템 설정 조회/수정'],
+      ['GET/PUT', '/configurations/samlsso',                     'SAML SSO 설정 조회/수정'],
+      ['GET/PUT', '/configurations/whiteListingIPs',             '화이트리스트 IP 설정 조회/수정'],
+      ['GET/PUT', '/configurations/keystore',                    '키스토어 설정 조회/수정'],
+      ['GET/PUT', '/configurations/errorProcessing',             '오류 처리 설정 조회/수정'],
+      ['GET/PUT', '/configurations/emailDestinationConfig',      '이메일 대상 설정 조회/수정'],
+      ['GET/PUT', '/configurations/elasticsearchDestinationConfig','Elasticsearch 대상 설정'],
+      ['GET/PUT', '/configurations/jdbcDestinationConfig',       'JDBC 대상 설정 조회/수정'],
+      ['GET/PUT', '/configurations/apiPortalDestinationConfig',  'API 포털 연결 설정 조회/수정'],
+      ['GET',    '/masterPassword',                              '마스터 비밀번호 속성 조회'],
+      ['PUT',    '/masterPassword/update',                       '마스터 비밀번호 변경'],
+      ['PUT',    '/masterPassword/reset',                        '마스터 비밀번호 초기화'],
+      ['PUT',    '/masterPassword/setExpiry',                    '마스터 비밀번호 만료 기간 설정'],
+      ['GET',    '/apitransactions',                             '런타임 이벤트 데이터 다운로드'],
+      ['DELETE', '/apitransactions',                             '런타임 이벤트 데이터 삭제'],
+      ['GET/POST','/apitransactions/archives',                   '아카이브 목록 조회 / 아카이브 실행'],
+      ['GET',    '/apitransactions/jobs',                        '아카이브/퍼지 작업 목록 조회'],
+      ['GET',    '/apitransactions/jobs/{jobId}',                '특정 작업 상태 조회'],
+      ['GET',    '/is/serverinfo',                               '서버 정보 조회 (버전·라이선스)'],
+      ['GET',    '/is/license',                                  '라이선스 정보 조회'],
+      ['GET/PUT', '/is/cluster',                                 '클러스터 정보 조회/수정'],
+      ['GET/PUT', '/is/kerberos',                                'Kerberos 설정 조회/수정'],
+      ['GET/POST','/is/keystore',                                '키스토어 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/keystore/{keyStoreName}',           '특정 키스토어 관리'],
+      ['GET/POST','/is/truststore',                              '트러스트스토어 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/truststore/{trustStoreName}',       '특정 트러스트스토어 관리'],
+      ['GET/POST','/is/outboundproxy',                           '아웃바운드 프록시 목록 조회 / 생성'],
+      ['GET/POST','/is/jmsConnections',                          'JMS 연결 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/jmsConnections/{jmsConnId}',        '특정 JMS 연결 관리'],
+      ['PUT',    '/is/jmsConnections/{jmsConnId}/enable',        'JMS 연결 활성화'],
+      ['PUT',    '/is/jmsConnections/{jmsConnId}/disable',       'JMS 연결 비활성화'],
+      ['GET/POST','/is/jmsTriggers',                             'JMS 트리거 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/jmsTriggers/{jmsTriggerId}',        '특정 JMS 트리거 관리'],
+      ['GET/POST','/is/jndi',                                    'JNDI 공급자 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/jndi/{jndiId}',                     '특정 JNDI 관리'],
+      ['GET/PUT', '/quiescemode',                                '정지 모드 조회/전환'],
+      ['POST',   '/shutdown',                                    '서버 종료/재시작'],
+      ['PUT',    '/assets/owner',                                '에셋 소유자 변경'],
+      ['PUT',    '/assets/team',                                  '에셋 팀 변경'],
+      ['GET/POST/PUT/DELETE','/rule',                            '팀 자동 배정 규칙 관리'],
+      ['GET/POST/PUT/DELETE','/urlaliases',                      'URL 별칭 관리'],
+      ['GET/POST','/webhooks',                                   '웹훅 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/webhooks/{id}',                        '특정 웹훅 관리'],
+      ['GET/POST','/portalGateways',                             '포털 게이트웨이 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/portalGateways/{portalGatewayId}',     '특정 포털 게이트웨이 관리'],
+      ['POST',   '/migration',                                   '마이그레이션 작업 실행'],
+      ['GET',    '/migration/status',                            '마이그레이션 상태 조회'],
+    ]
+  },
+  {
+    name: '수익화 (Monetization)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/packages',                              '전체 패키지 목록 조회'],
+      ['POST',   '/packages',                              '패키지 생성'],
+      ['GET',    '/packages/{packageId}',                  '패키지 상세 조회'],
+      ['PUT',    '/packages/{packageId}',                  '패키지 수정'],
+      ['DELETE', '/packages/{packageId}',                  '패키지 삭제'],
+      ['PUT',    '/packages/{packageId}/activate',         '패키지 활성화'],
+      ['PUT',    '/packages/{packageId}/deactivate',       '패키지 비활성화'],
+      ['PUT',    '/packages/{packageId}/publish',          '패키지를 포털에 게시'],
+      ['PUT',    '/packages/{packageId}/unpublish',        '패키지 포털 게시 취소'],
+      ['GET',    '/packages/{packageId}/apis',             '패키지에 연결된 API 목록 조회'],
+      ['GET',    '/packages/{packageId}/plans',            '패키지에 연결된 플랜 목록 조회'],
+      ['GET',    '/plans',                                 '전체 플랜 목록 조회'],
+      ['POST',   '/plans',                                 '플랜 생성'],
+      ['GET',    '/plans/{planId}',                        '플랜 상세 조회'],
+      ['PUT',    '/plans/{planId}',                        '플랜 수정'],
+      ['DELETE', '/plans/{planId}',                        '플랜 삭제'],
+      ['GET',    '/subscriptions',                         '구독 목록 조회'],
+      ['POST',   '/subscriptions',                         '구독 생성'],
+      ['GET',    '/subscriptions/usage',                   '전체 활성 구독 사용량 집계 조회'],
+      ['GET',    '/subscriptions/{applicationId}',         '특정 구독 상세 조회'],
+      ['GET',    '/subscriptions/{applicationId}/usage',   '특정 구독의 사용량 조회'],
+    ]
+  },
+  {
+    name: '프로모션 관리 (Promotion Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/stages',                  '스테이지 목록 조회'],
+      ['POST',   '/stages',                  '스테이지 생성'],
+      ['GET',    '/stages/{stageId}',        '특정 스테이지 조회'],
+      ['PUT',    '/stages/{stageId}',        '스테이지 수정'],
+      ['DELETE', '/stages/{stageId}',        '스테이지 삭제'],
+      ['GET',    '/promotion',               '프로모션 이력 목록 조회'],
+      ['POST',   '/promotion',               '에셋 프로모션 실행 (source → target)'],
+      ['GET',    '/promotion/{promotionId}', '특정 프로모션 조회'],
+      ['DELETE', '/promotion/{promotionId}', '프로모션 삭제'],
+      ['GET',    '/rollback',                '롤백 가능 항목 목록 조회'],
+      ['GET',    '/rollback/{rollbackId}',   '특정 롤백 조회'],
+      ['PUT',    '/rollback/{rollbackId}',   '롤백 실행'],
+      ['DELETE', '/rollback/{rollbackId}',   '롤백 항목 삭제'],
+    ]
+  },
+  {
+    name: '포트 관리 (Port Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/ports',                               '포트 설정 목록 조회'],
+      ['POST',   '/ports',                               '포트 생성'],
+      ['PUT',    '/ports',                               '포트 수정'],
+      ['DELETE', '/ports',                               '포트 삭제'],
+      ['GET',    '/ports/primary',                       '기본(primary) 포트 조회'],
+      ['PUT',    '/ports/primary',                       '기본 포트 변경'],
+      ['PUT',    '/ports/enable',                        '포트 활성화'],
+      ['PUT',    '/ports/disable',                       '포트 비활성화'],
+      ['GET',    '/ports/{listenerKey}',                 '특정 포트 조회'],
+      ['GET',    '/ports/{listenerKey}/accessMode',      '포트 접근 모드 조회'],
+      ['POST',   '/ports/{listenerKey}/accessMode',      '포트 접근 모드 설정'],
+      ['PUT',    '/ports/{listenerKey}/accessMode',      '포트 접근 모드 수정'],
+      ['GET',    '/ports/{listenerKey}/ipAccessMode',    'IP 접근 모드 조회'],
+      ['POST',   '/ports/{listenerKey}/ipAccessMode',    'IP 접근 모드 생성'],
+      ['PUT',    '/ports/{listenerKey}/ipAccessMode',    'IP 접근 모드 수정'],
+    ]
+  },
+  {
+    name: '승인 관리 (Approval Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',    '/approvalConfigurations',          '승인 설정 목록 조회'],
+      ['POST',   '/approvalConfigurations',          '승인 설정 생성'],
+      ['GET',    '/approvalConfigurations/{id}',     '특정 승인 설정 조회'],
+      ['PUT',    '/approvalConfigurations/{id}',     '승인 설정 수정'],
+      ['DELETE', '/approvalConfigurations/{id}',     '승인 설정 삭제'],
+      ['GET',    '/approvals',                       '대기 중인 승인 요청 목록 조회'],
+      ['GET',    '/approvals/{approvalId}',          '특정 승인 요청 조회'],
+      ['DELETE', '/approvals/{approvalId}',          '승인 요청 삭제'],
+      ['PUT',    '/approvals/{approvalId}/{action}', '승인 요청 승인 또는 거부'],
+    ]
+  },
+  {
+    name: '검색 (Search)',
+    base: '/rest/apigateway',
+    apis: [
+      ['POST', '/search',               'API·애플리케이션·앨리어스·정책·사용자 등 전체 검색'],
+      ['POST', '/search/_aggregations', '집계 검색 (그룹핑, 지표, 시계열)'],
+      ['POST', '/search/_count',        '검색 조건별 레코드 수 집계'],
+    ]
+  },
+  {
+    name: '아카이브 (Archive)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET',  '/archive', 'API·앨리어스·정책 등 에셋 ZIP 아카이브로 내보내기'],
+      ['POST', '/archive', '아카이브 임포트 (x-HTTP-Method-Override: GET 시 내보내기)'],
+    ]
+  },
+  {
+    name: '문서 관리 (Document Management)',
+    base: '/rest/apigateway',
+    apis: [
+      ['POST',   '/documents',                 '문서 저장'],
+      ['GET',    '/documents/{documentId}',    '문서 조회'],
+      ['PUT',    '/documents/{documentId}',    '문서 전체 업데이트'],
+      ['PATCH',  '/documents/{documentId}',    '문서 부분 업데이트'],
+      ['DELETE', '/documents/{documentId}',    '문서 삭제'],
+    ]
+  },
+  {
+    name: '트랜잭션 이벤트 (Transactional Events)',
+    base: '/rest/apigateway',
+    apis: [
+      ['GET', '/transactionalEvents/_count',  '조건별 트랜잭션 이벤트 건수 조회'],
+      ['GET', '/transactionalEvents/_search', '조건별 트랜잭션 이벤트 상세 목록 조회'],
+    ]
+  },
+  {
+    name: '헬스체크 (Availability)',
+    base: '/rest/apigateway/health',
+    apis: [
+      ['GET', '/admin',            '관리 기능 헬스체크 (UI, Kibana)'],
+      ['GET', '/all',              '전체 컴포넌트 헬스체크'],
+      ['GET', '/engine',           '코어 헬스체크 (Elasticsearch, IS, Terracotta)'],
+      ['GET', '/externalServices', '외부 서비스 및 목적지 헬스체크'],
+    ]
+  },
+  {
+    name: '공개 서비스 (Public Services)',
+    base: '/rest/pub/apigateway',
+    apis: [
+      ['GET', '/jwt/certs',           'JWKS URI — API Gateway 공개 키 목록 조회'],
+      ['GET', '/jwt/getJsonWebToken', 'API Gateway에서 JWT 토큰 발급'],
+    ]
+  },
+  {
+    name: '내부 서비스 (Internal Service)',
+    base: '/{gateway}',
+    apis: [
+      ['POST', '/security/exchangeIDToken',  'ID Token을 액세스 토큰으로 교환'],
+      ['POST', '/security/getJsonWebToken',  '커스텀 클레임으로 JWT 생성'],
+    ]
+  },
+];
+
+// ── 메서드 → CSS 클래스 ──
+function methodClass(m) {
+  const u = m.toUpperCase();
+  if (u === 'GET')    return 'm-get';
+  if (u === 'POST')   return 'm-post';
+  if (u === 'PUT')    return 'm-put';
+  if (u === 'PATCH')  return 'm-patch';
+  if (u === 'DELETE') return 'm-delete';
+  return 'm-multi';
+}
+
+// ── 렌더링 ──
+const container = document.getElementById('container');
+const collapsed  = {};
+
+SERVICES.forEach((svc, si) => {
+  const section = document.createElement('div');
+  section.className = 'service-section';
+  section.dataset.si = si;
+
+  const header = document.createElement('div');
+  header.className = 'service-header';
+  header.innerHTML = `
+    <span class="service-name">${svc.name}</span>
+    <span class="service-base">${svc.base}</span>
+    <span class="service-count">${svc.apis.length}</span>
+    <span class="collapse-icon" id="ci-${si}">▼</span>`;
+  header.addEventListener('click', () => toggleSection(si));
+
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'api-table-wrap';
+  tableWrap.id = `tw-${si}`;
+
+  const table = document.createElement('table');
+  table.className = 'api-table';
+  table.id = `t-${si}`;
+
+  svc.apis.forEach(([method, path, desc], ri) => {
+    const tr = document.createElement('tr');
+    tr.dataset.method = method.toLowerCase();
+    tr.dataset.path   = path.toLowerCase();
+    tr.dataset.desc   = desc;
+    tr.innerHTML = `
+      <td><span class="method ${methodClass(method)}">${method}</span></td>
+      <td>${path}</td>
+      <td>${desc}</td>`;
+    table.appendChild(tr);
+  });
+
+  tableWrap.appendChild(table);
+  section.appendChild(header);
+  section.appendChild(tableWrap);
+  container.appendChild(section);
+});
+
+function toggleSection(si) {
+  collapsed[si] = !collapsed[si];
+  document.getElementById(`tw-${si}`).style.display = collapsed[si] ? 'none' : '';
+  document.getElementById(`ci-${si}`).textContent = collapsed[si] ? '▶' : '▼';
+}
+
+// ── 검색 ──
+function highlight(text, q) {
+  if (!q) return text;
+  return text.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+    m => `<span class="highlight">${m}</span>`);
+}
+
+function doSearch(raw) {
+  const q = raw.trim().toLowerCase();
+  let total = 0;
+
+  SERVICES.forEach((svc, si) => {
+    const rows = document.querySelectorAll(`#t-${si} tr`);
+    let svcMatch = 0;
+
+    rows.forEach((tr, ri) => {
+      const api    = svc.apis[ri];
+      const method = api[0].toLowerCase();
+      const path   = api[1].toLowerCase();
+      const desc   = api[2];
+      const hit    = !q || method.includes(q) || path.includes(q) || desc.toLowerCase().includes(q);
+
+      tr.classList.toggle('hidden', !hit);
+      if (hit) {
+        svcMatch++;
+        tr.cells[0].innerHTML = `<span class="method ${methodClass(api[0])}">${highlight(api[0], raw.trim())}</span>`;
+        tr.cells[1].innerHTML = highlight(api[1], raw.trim());
+        tr.cells[2].innerHTML = highlight(desc, raw.trim());
+      }
+    });
+
+    total += svcMatch;
+
+    const section = document.querySelector(`.service-section[data-si="${si}"]`);
+    if (!q) {
+      section.style.display = '';
+      if (collapsed[si]) document.getElementById(`tw-${si}`).style.display = 'none';
+      else               document.getElementById(`tw-${si}`).style.display = '';
+    } else {
+      section.style.display = svcMatch ? '' : 'none';
+      document.getElementById(`tw-${si}`).style.display = svcMatch ? '' : 'none';
+    }
+  });
+
+  const matchEl = document.getElementById('matchCount');
+  const noRes   = document.getElementById('noResults');
+  if (q) {
+    matchEl.textContent = `${total}개 일치`;
+    noRes.style.display = total ? 'none' : '';
+  } else {
+    matchEl.textContent = '';
+    noRes.style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>

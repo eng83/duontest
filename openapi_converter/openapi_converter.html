@@ -118,17 +118,6 @@
     <h1>OpenAPI JSON Converter</h1>
 
     <div class="input-section">
-      <div class="field-row">
-        <div class="field">
-          <label>새 서버 Host</label>
-          <input type="text" v-model="newHost" placeholder="예) http://new-server.com" />
-        </div>
-        <div class="field">
-          <label>이동할 경로 Prefix (서버 URL로 합칠 경로)</label>
-          <input type="text" v-model="prefix" placeholder="예) /api/tt48/public" />
-        </div>
-      </div>
-
       <div class="field" style="margin-bottom:16px;">
         <label>OpenAPI URL에서 가져오기 (선택)</label>
         <div style="display:flex;gap:8px;">
@@ -138,6 +127,17 @@
           </button>
         </div>
         <div v-if="fetchError" class="error-msg" style="margin-top:6px;">{{ fetchError }}</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>새 서버 Host</label>
+          <input type="text" v-model="newHost" placeholder="예) http://new-server.com" />
+        </div>
+        <div class="field">
+          <label>이동할 경로 Prefix (서버 URL로 합칠 경로)</label>
+          <input type="text" v-model="prefix" placeholder="예) /api/tt48/public" />
+        </div>
       </div>
 
       <div class="section-header" style="margin-top:4px;" @click="jsonPasteCollapsed = !jsonPasteCollapsed">

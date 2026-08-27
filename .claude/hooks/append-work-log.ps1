@@ -107,7 +107,8 @@ $savedOutputEncodingVar = $OutputEncoding
 [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding           = [System.Text.Encoding]::UTF8
-$summary = & claude -p $prompt 2>$null
+$summaryLines = & claude -p $prompt 2>$null
+$summary = $summaryLines -join "`n"
 [Console]::OutputEncoding = $savedOutputEncoding
 $OutputEncoding           = $savedOutputEncodingVar
 Remove-Item Env:\WORK_LOG_HOOK_RUNNING -ErrorAction SilentlyContinue

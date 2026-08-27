@@ -1,4 +1,4 @@
-# PostToolUse 훅 (Windows / PowerShell 버전)
+﻿# PostToolUse 훅 (Windows / PowerShell 버전)
 # Edit / Write / NotebookEdit / MultiEdit / Bash / PowerShell 도구 호출을
 # 세션별 임시 로그(.claude\.session-changes\<session_id>.log)에 기록한다.
 #

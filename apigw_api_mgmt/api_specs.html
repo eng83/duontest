@@ -6,76 +6,146 @@
   <title>APIGW API 스펙 참조</title>
   <script>(function(){var t=localStorage.getItem('wt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;})();</script>
   <link rel="stylesheet" href="../shared/css/common.css">
+  <script src="../shared/js/proxy-config.js"></script>
   <script src="../shared/js/theme.js" defer></script>
   <style>
     .app { max-width: 1400px; padding: 24px 24px 60px; }
 
-    /* 검색 */
+    /* ── 검색 바 ── */
     .search-bar {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: var(--color-bg);
-      padding: 12px 0;
-      margin-bottom: 8px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
+      position: sticky; top: 0; z-index: 50;
+      background: var(--color-bg); padding: 12px 0; margin-bottom: 8px;
+      display: flex; gap: 10px; align-items: center;
     }
     .search-input {
-      flex: 1;
-      padding: 9px 14px;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      background: var(--color-card);
-      color: var(--color-text);
-      font-size: 0.9rem;
+      flex: 1; padding: 9px 14px;
+      border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+      background: var(--color-card); color: var(--color-text); font-size: 0.9rem;
     }
     .search-input:focus { outline: none; border-color: var(--color-primary); }
     .match-count { font-size: 0.82rem; color: var(--color-text-muted); white-space: nowrap; }
 
-    /* 서비스 섹션 */
+    /* ── 서비스 섹션 ── */
     .service-section { margin-bottom: 28px; }
     .service-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex; align-items: center; gap: 12px;
       padding: 10px 14px;
-      background: var(--color-panel-header);
-      border: 1px solid var(--color-border);
+      background: var(--color-panel-header); border: 1px solid var(--color-border);
       border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      cursor: pointer;
-      user-select: none;
+      cursor: pointer; user-select: none;
     }
     .service-header:hover { opacity: 0.85; }
-    .service-name { font-weight: 700; font-size: 0.95rem; color: var(--color-text-heading); flex: 1; }
-    .service-base { font-size: 0.78rem; color: var(--color-text-muted); font-family: var(--font-mono); }
+    .service-name  { font-weight: 700; font-size: 0.95rem; color: var(--color-text-heading); flex: 1; }
+    .service-base  { font-size: 0.78rem; color: var(--color-text-muted); font-family: var(--font-mono); }
     .service-count {
       font-size: 0.72rem; font-weight: 700; color: #fff;
       background: var(--color-primary); border-radius: 10px; padding: 2px 8px;
     }
     .collapse-icon { font-size: 0.72rem; color: var(--color-text-muted); }
 
-    /* API 테이블 */
+    /* ── API 테이블 ── */
     .api-table-wrap {
-      border: 1px solid var(--color-border);
-      border-top: none;
-      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-      overflow: hidden;
+      border: 1px solid var(--color-border); border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm); overflow: hidden;
     }
     .api-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
-    .api-table tr:not(:last-child) td { border-bottom: 1px solid var(--color-border-subtle); }
     .api-table tr.hidden { display: none; }
-    .api-table td { padding: 8px 12px; vertical-align: middle; }
-    .api-table td:first-child { width: 100px; }
-    .api-table td:nth-child(2) { width: 340px; font-family: var(--font-mono); font-size: 0.79rem; color: var(--color-text); }
-    .api-table td:nth-child(3) { color: var(--color-text-label); }
-    .api-table tr:hover td { background: color-mix(in srgb, var(--color-primary) 4%, transparent); }
 
+    /* API 행 */
+    .api-row { cursor: pointer; }
+    .api-row td { padding: 8px 12px; border-bottom: 1px solid var(--color-border-subtle); vertical-align: middle; }
+    .api-row:hover td { background: color-mix(in srgb, var(--color-primary) 5%, transparent); }
+    .api-row.active td { background: color-mix(in srgb, var(--color-primary) 9%, transparent); }
+    .api-row td:first-child  { width: 110px; }
+    .api-row td:nth-child(2) { width: 340px; font-family: var(--font-mono); font-size: 0.79rem; }
+    .api-row td:last-child   { width: 28px; text-align: center; font-size: 0.7rem; color: var(--color-text-muted); }
+
+    /* 상세 행 */
+    .detail-row td { padding: 0; background: var(--color-bg); border-bottom: 2px solid var(--color-border); }
+    .detail-content { padding: 14px 16px; }
+
+    /* 로딩/에러 */
+    .detail-loading { padding: 20px; text-align: center; color: var(--color-text-muted); font-size: 0.85rem; }
+    .detail-error   { padding: 14px; color: var(--color-text-muted); font-size: 0.83rem; }
+    .detail-na      { padding: 14px; color: var(--color-text-muted); font-size: 0.83rem; font-style: italic; }
+
+    /* 상세 내부 섹션 (파라미터/응답) */
+    .detail-section { border: 1px solid var(--color-border); border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden; }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-section-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 12px; background: var(--color-panel-header);
+      cursor: pointer; user-select: none; font-size: 0.83rem;
+      font-weight: 600; color: var(--color-text-heading);
+    }
+    .detail-section-hdr:hover { opacity: 0.85; }
+    .detail-section-body { overflow-x: auto; }
+
+    /* 여러 메서드 블록 구분선 */
+    .op-block { margin-bottom: 14px; }
+    .op-block:last-child { margin-bottom: 0; }
+    .op-method-label {
+      font-size: 0.78rem; font-weight: 700; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px; color: var(--color-text-muted);
+    }
+
+    /* 파라미터/응답 테이블 */
+    .param-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .param-table th {
+      text-align: left; padding: 6px 10px;
+      background: color-mix(in srgb, var(--color-border) 30%, transparent);
+      font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--color-text-label); font-weight: 700;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .param-table td { padding: 6px 10px; border-bottom: 1px solid var(--color-border-subtle); vertical-align: top; }
+    .param-table tr:last-child td { border-bottom: none; }
+    .param-table td:first-child { font-family: var(--font-mono); font-size: 0.77rem; white-space: nowrap; }
+    .param-desc { color: var(--color-text-label); max-width: 400px; }
+
+    /* 위치 배지 */
+    .in-badge {
+      display: inline-block; padding: 1px 6px; border-radius: 4px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+    }
+    .in-path   { background: #e8f0fe; color: #1a56db; }
+    .in-query  { background: #e8f5e9; color: #2e7d32; }
+    .in-body   { background: #fff3e0; color: #e65100; }
+    .in-formData { background: #f3e5f5; color: #6a1b9a; }
+    .in-header { background: #fce4ec; color: #c62828; }
+    [data-theme="dark"] .in-path     { background: #0d1f4a; color: #90caf9; }
+    [data-theme="dark"] .in-query    { background: #0d2b0d; color: #81c784; }
+    [data-theme="dark"] .in-body     { background: #2b1a00; color: #ffb74d; }
+    [data-theme="dark"] .in-formData { background: #1e0d2b; color: #ce93d8; }
+    [data-theme="dark"] .in-header   { background: #2b0d0d; color: #ef9a9a; }
+
+    /* 필수 배지 */
+    .req-badge {
+      display: inline-block; padding: 1px 6px; border-radius: 4px;
+      font-size: 0.68rem; font-weight: 700; background: #fce4ec; color: #c62828;
+    }
+    [data-theme="dark"] .req-badge { background: #2b0d0d; color: #ef9a9a; }
+
+    /* 응답 코드 */
+    .status-code {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono);
+    }
+    .code-2xx { background: #e8f5e9; color: #2e7d32; }
+    .code-3xx { background: #e3f2fd; color: #1565c0; }
+    .code-4xx { background: #fce4ec; color: #c62828; }
+    .code-5xx { background: #fbe9e7; color: #bf360c; }
+    [data-theme="dark"] .code-2xx { background: #0d2b0d; color: #81c784; }
+    [data-theme="dark"] .code-3xx { background: #0d1f4a; color: #90caf9; }
+    [data-theme="dark"] .code-4xx { background: #2b0d0d; color: #ef9a9a; }
+    [data-theme="dark"] .code-5xx { background: #2b1200; color: #ffab91; }
+
+    .schema-ref { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); }
+
+    /* 메서드 배지 */
     .method {
-      display: inline-block; padding: 2px 8px;
-      border-radius: 4px; font-size: 0.72rem; font-weight: 700;
-      letter-spacing: 0.04em; min-width: 52px; text-align: center;
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; min-width: 52px; text-align: center;
     }
     .m-get    { background: #e3f2fd; color: #1565c0; }
     .m-post   { background: #e8f5e9; color: #2e7d32; }
@@ -83,7 +153,6 @@
     .m-patch  { background: #f3e5f5; color: #6a1b9a; }
     .m-delete { background: #fce4ec; color: #c62828; }
     .m-multi  { background: var(--color-border-subtle); color: var(--color-text-label); }
-
     [data-theme="dark"] .m-get    { background: #0d2137; color: #64b5f6; }
     [data-theme="dark"] .m-post   { background: #0d2b0d; color: #81c784; }
     [data-theme="dark"] .m-put    { background: #2b1a00; color: #ffb74d; }
@@ -108,7 +177,10 @@
 
 <div class="app">
   <h1 style="font-size:1.4rem;font-weight:700;color:var(--color-text-heading);margin-bottom:4px;">APIGW API 스펙 참조</h1>
-  <p style="font-size:0.85rem;color:var(--color-text-muted);margin-bottom:16px;">webMethods API Gateway 11.0 · Swagger 2.0 · basePath: <code style="font-family:var(--font-mono);font-size:0.82rem;">/rest/apigateway</code></p>
+  <p style="font-size:0.85rem;color:var(--color-text-muted);margin-bottom:16px;">
+    webMethods API Gateway 11.0 · Swagger 2.0 · basePath: <code style="font-family:var(--font-mono);font-size:0.82rem;">/rest/apigateway</code>
+    &nbsp;·&nbsp; <span style="font-size:0.82rem;">행 클릭 시 파라미터·응답 상세 표시 (프록시 서버 필요)</span>
+  </p>
 
   <div class="search-bar">
     <input class="search-input" id="searchInput" type="text" placeholder="경로 또는 설명으로 검색…" oninput="doSearch(this.value)" />
@@ -120,10 +192,13 @@
 </div>
 
 <script>
+const PROXY = window.WEB_TOOLS_PROXY || 'http://localhost:9090';
+
 const SERVICES = [
   {
     name: 'API 관리 (Service Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayServiceManagement.json',
     apis: [
       ['GET',    '/apis',                              '전체 또는 일부 API 목록 조회'],
       ['POST',   '/apis',                              'API 생성 (파일/URL/직접 입력)'],
@@ -170,6 +245,7 @@ const SERVICES = [
   {
     name: '사용자 관리 (User Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayUserManagementSwagger.json',
     apis: [
       ['GET',    '/users',                             '전체 사용자 목록 조회'],
       ['POST',   '/users',                             '새 사용자 생성'],
@@ -196,6 +272,7 @@ const SERVICES = [
   {
     name: '애플리케이션 관리 (Application Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayApplication.json',
     apis: [
       ['GET',    '/applications',                          '전체 애플리케이션 목록 조회'],
       ['POST',   '/applications',                          '새 애플리케이션 생성'],
@@ -221,6 +298,7 @@ const SERVICES = [
   {
     name: '정책 관리 (Policy Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayPolicyManagement.json',
     apis: [
       ['GET',    '/policies',                          '전체 정책 목록 조회'],
       ['POST',   '/policies',                          '새 정책 생성 또는 클론'],
@@ -261,6 +339,7 @@ const SERVICES = [
   {
     name: '앨리어스 관리 (Alias Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayAlias.json',
     apis: [
       ['GET',    '/alias',            '전체 앨리어스 목록 조회'],
       ['POST',   '/alias',            '새 앨리어스 생성'],
@@ -272,66 +351,68 @@ const SERVICES = [
   {
     name: '관리 설정 (Administration)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayAdministration.json',
     apis: [
-      ['GET/PUT', '/configurations/passwordRestrictions',        '비밀번호 제한 정책 조회/수정'],
-      ['GET/PUT', '/configurations/passwordExpiry',              '비밀번호 만료 설정 조회/수정'],
-      ['GET/PUT', '/configurations/accountLockSettings',         '계정 잠금 설정 조회/수정'],
-      ['GET/PUT', '/configurations/ldapConfig',                  'LDAP 디렉터리 설정 조회/수정'],
-      ['GET/PUT', '/configurations/loadBalancer',                '로드밸런서 설정 조회/수정'],
-      ['GET/PUT', '/configurations/logConfig',                   '로그 설정 조회/수정'],
-      ['GET/PUT', '/configurations/cache',                       '캐시 설정 조회/수정'],
-      ['GET/PUT', '/configurations/settings',                    '일반 시스템 설정 조회/수정'],
-      ['GET/PUT', '/configurations/samlsso',                     'SAML SSO 설정 조회/수정'],
-      ['GET/PUT', '/configurations/whiteListingIPs',             '화이트리스트 IP 설정 조회/수정'],
-      ['GET/PUT', '/configurations/keystore',                    '키스토어 설정 조회/수정'],
-      ['GET/PUT', '/configurations/errorProcessing',             '오류 처리 설정 조회/수정'],
-      ['GET/PUT', '/configurations/emailDestinationConfig',      '이메일 대상 설정 조회/수정'],
+      ['GET/PUT', '/configurations/passwordRestrictions',         '비밀번호 제한 정책 조회/수정'],
+      ['GET/PUT', '/configurations/passwordExpiry',               '비밀번호 만료 설정 조회/수정'],
+      ['GET/PUT', '/configurations/accountLockSettings',          '계정 잠금 설정 조회/수정'],
+      ['GET/PUT', '/configurations/ldapConfig',                   'LDAP 디렉터리 설정 조회/수정'],
+      ['GET/PUT', '/configurations/loadBalancer',                 '로드밸런서 설정 조회/수정'],
+      ['GET/PUT', '/configurations/logConfig',                    '로그 설정 조회/수정'],
+      ['GET/PUT', '/configurations/cache',                        '캐시 설정 조회/수정'],
+      ['GET/PUT', '/configurations/settings',                     '일반 시스템 설정 조회/수정'],
+      ['GET/PUT', '/configurations/samlsso',                      'SAML SSO 설정 조회/수정'],
+      ['GET/PUT', '/configurations/whiteListingIPs',              '화이트리스트 IP 설정 조회/수정'],
+      ['GET/PUT', '/configurations/keystore',                     '키스토어 설정 조회/수정'],
+      ['GET/PUT', '/configurations/errorProcessing',              '오류 처리 설정 조회/수정'],
+      ['GET/PUT', '/configurations/emailDestinationConfig',       '이메일 대상 설정 조회/수정'],
       ['GET/PUT', '/configurations/elasticsearchDestinationConfig','Elasticsearch 대상 설정'],
-      ['GET/PUT', '/configurations/jdbcDestinationConfig',       'JDBC 대상 설정 조회/수정'],
-      ['GET/PUT', '/configurations/apiPortalDestinationConfig',  'API 포털 연결 설정 조회/수정'],
-      ['GET',    '/masterPassword',                              '마스터 비밀번호 속성 조회'],
-      ['PUT',    '/masterPassword/update',                       '마스터 비밀번호 변경'],
-      ['PUT',    '/masterPassword/reset',                        '마스터 비밀번호 초기화'],
-      ['PUT',    '/masterPassword/setExpiry',                    '마스터 비밀번호 만료 기간 설정'],
-      ['GET',    '/apitransactions',                             '런타임 이벤트 데이터 다운로드'],
-      ['DELETE', '/apitransactions',                             '런타임 이벤트 데이터 삭제'],
-      ['GET/POST','/apitransactions/archives',                   '아카이브 목록 조회 / 아카이브 실행'],
-      ['GET',    '/apitransactions/jobs',                        '아카이브/퍼지 작업 목록 조회'],
-      ['GET',    '/apitransactions/jobs/{jobId}',                '특정 작업 상태 조회'],
-      ['GET',    '/is/serverinfo',                               '서버 정보 조회 (버전·라이선스)'],
-      ['GET',    '/is/license',                                  '라이선스 정보 조회'],
-      ['GET/PUT', '/is/cluster',                                 '클러스터 정보 조회/수정'],
-      ['GET/PUT', '/is/kerberos',                                'Kerberos 설정 조회/수정'],
-      ['GET/POST','/is/keystore',                                '키스토어 목록 조회 / 생성'],
-      ['GET/PUT/DELETE','/is/keystore/{keyStoreName}',           '특정 키스토어 관리'],
-      ['GET/POST','/is/truststore',                              '트러스트스토어 목록 조회 / 생성'],
-      ['GET/PUT/DELETE','/is/truststore/{trustStoreName}',       '특정 트러스트스토어 관리'],
-      ['GET/POST','/is/outboundproxy',                           '아웃바운드 프록시 목록 조회 / 생성'],
-      ['GET/POST','/is/jmsConnections',                          'JMS 연결 목록 조회 / 생성'],
-      ['GET/PUT/DELETE','/is/jmsConnections/{jmsConnId}',        '특정 JMS 연결 관리'],
-      ['PUT',    '/is/jmsConnections/{jmsConnId}/enable',        'JMS 연결 활성화'],
-      ['PUT',    '/is/jmsConnections/{jmsConnId}/disable',       'JMS 연결 비활성화'],
-      ['GET/POST','/is/jmsTriggers',                             'JMS 트리거 목록 조회 / 생성'],
-      ['GET/PUT/DELETE','/is/jmsTriggers/{jmsTriggerId}',        '특정 JMS 트리거 관리'],
-      ['GET/POST','/is/jndi',                                    'JNDI 공급자 목록 조회 / 생성'],
-      ['GET/PUT/DELETE','/is/jndi/{jndiId}',                     '특정 JNDI 관리'],
-      ['GET/PUT', '/quiescemode',                                '정지 모드 조회/전환'],
-      ['POST',   '/shutdown',                                    '서버 종료/재시작'],
-      ['PUT',    '/assets/owner',                                '에셋 소유자 변경'],
+      ['GET/PUT', '/configurations/jdbcDestinationConfig',        'JDBC 대상 설정 조회/수정'],
+      ['GET/PUT', '/configurations/apiPortalDestinationConfig',   'API 포털 연결 설정 조회/수정'],
+      ['GET',    '/masterPassword',                               '마스터 비밀번호 속성 조회'],
+      ['PUT',    '/masterPassword/update',                        '마스터 비밀번호 변경'],
+      ['PUT',    '/masterPassword/reset',                         '마스터 비밀번호 초기화'],
+      ['PUT',    '/masterPassword/setExpiry',                     '마스터 비밀번호 만료 기간 설정'],
+      ['GET',    '/apitransactions',                              '런타임 이벤트 데이터 다운로드'],
+      ['DELETE', '/apitransactions',                              '런타임 이벤트 데이터 삭제'],
+      ['GET/POST','/apitransactions/archives',                    '아카이브 목록 조회 / 아카이브 실행'],
+      ['GET',    '/apitransactions/jobs',                         '아카이브/퍼지 작업 목록 조회'],
+      ['GET',    '/apitransactions/jobs/{jobId}',                 '특정 작업 상태 조회'],
+      ['GET',    '/is/serverinfo',                                '서버 정보 조회 (버전·라이선스)'],
+      ['GET',    '/is/license',                                   '라이선스 정보 조회'],
+      ['GET/PUT', '/is/cluster',                                  '클러스터 정보 조회/수정'],
+      ['GET/PUT', '/is/kerberos',                                 'Kerberos 설정 조회/수정'],
+      ['GET/POST','/is/keystore',                                 '키스토어 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/keystore/{keyStoreName}',            '특정 키스토어 관리'],
+      ['GET/POST','/is/truststore',                               '트러스트스토어 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/truststore/{trustStoreName}',        '특정 트러스트스토어 관리'],
+      ['GET/POST','/is/outboundproxy',                            '아웃바운드 프록시 목록 조회 / 생성'],
+      ['GET/POST','/is/jmsConnections',                           'JMS 연결 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/jmsConnections/{jmsConnId}',         '특정 JMS 연결 관리'],
+      ['PUT',    '/is/jmsConnections/{jmsConnId}/enable',         'JMS 연결 활성화'],
+      ['PUT',    '/is/jmsConnections/{jmsConnId}/disable',        'JMS 연결 비활성화'],
+      ['GET/POST','/is/jmsTriggers',                              'JMS 트리거 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/jmsTriggers/{jmsTriggerId}',         '특정 JMS 트리거 관리'],
+      ['GET/POST','/is/jndi',                                     'JNDI 공급자 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/is/jndi/{jndiId}',                      '특정 JNDI 관리'],
+      ['GET/PUT', '/quiescemode',                                 '정지 모드 조회/전환'],
+      ['POST',   '/shutdown',                                     '서버 종료/재시작'],
+      ['PUT',    '/assets/owner',                                 '에셋 소유자 변경'],
       ['PUT',    '/assets/team',                                  '에셋 팀 변경'],
-      ['GET/POST/PUT/DELETE','/rule',                            '팀 자동 배정 규칙 관리'],
-      ['GET/POST/PUT/DELETE','/urlaliases',                      'URL 별칭 관리'],
-      ['GET/POST','/webhooks',                                   '웹훅 목록 조회 / 생성'],
-      ['GET/PUT/DELETE','/webhooks/{id}',                        '특정 웹훅 관리'],
-      ['GET/POST','/portalGateways',                             '포털 게이트웨이 목록 조회 / 생성'],
-      ['GET/PUT/DELETE','/portalGateways/{portalGatewayId}',     '특정 포털 게이트웨이 관리'],
-      ['POST',   '/migration',                                   '마이그레이션 작업 실행'],
-      ['GET',    '/migration/status',                            '마이그레이션 상태 조회'],
+      ['GET/POST/PUT/DELETE','/rule',                             '팀 자동 배정 규칙 관리'],
+      ['GET/POST/PUT/DELETE','/urlaliases',                       'URL 별칭 관리'],
+      ['GET/POST','/webhooks',                                    '웹훅 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/webhooks/{id}',                         '특정 웹훅 관리'],
+      ['GET/POST','/portalGateways',                              '포털 게이트웨이 목록 조회 / 생성'],
+      ['GET/PUT/DELETE','/portalGateways/{portalGatewayId}',      '특정 포털 게이트웨이 관리'],
+      ['POST',   '/migration',                                    '마이그레이션 작업 실행'],
+      ['GET',    '/migration/status',                             '마이그레이션 상태 조회'],
     ]
   },
   {
     name: '수익화 (Monetization)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayMonetizationSwagger.json',
     apis: [
       ['GET',    '/packages',                              '전체 패키지 목록 조회'],
       ['POST',   '/packages',                              '패키지 생성'],
@@ -359,6 +440,7 @@ const SERVICES = [
   {
     name: '프로모션 관리 (Promotion Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayPromotionManagement.json',
     apis: [
       ['GET',    '/stages',                  '스테이지 목록 조회'],
       ['POST',   '/stages',                  '스테이지 생성'],
@@ -378,6 +460,7 @@ const SERVICES = [
   {
     name: '포트 관리 (Port Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayPortManagement.json',
     apis: [
       ['GET',    '/ports',                               '포트 설정 목록 조회'],
       ['POST',   '/ports',                               '포트 생성'],
@@ -399,6 +482,7 @@ const SERVICES = [
   {
     name: '승인 관리 (Approval Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayApprovalManagement.json',
     apis: [
       ['GET',    '/approvalConfigurations',          '승인 설정 목록 조회'],
       ['POST',   '/approvalConfigurations',          '승인 설정 생성'],
@@ -414,6 +498,7 @@ const SERVICES = [
   {
     name: '검색 (Search)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewaySearch.json',
     apis: [
       ['POST', '/search',               'API·애플리케이션·앨리어스·정책·사용자 등 전체 검색'],
       ['POST', '/search/_aggregations', '집계 검색 (그룹핑, 지표, 시계열)'],
@@ -423,6 +508,7 @@ const SERVICES = [
   {
     name: '아카이브 (Archive)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayArchive.json',
     apis: [
       ['GET',  '/archive', 'API·앨리어스·정책 등 에셋 ZIP 아카이브로 내보내기'],
       ['POST', '/archive', '아카이브 임포트 (x-HTTP-Method-Override: GET 시 내보내기)'],
@@ -431,6 +517,7 @@ const SERVICES = [
   {
     name: '문서 관리 (Document Management)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayDocumentManagement.json',
     apis: [
       ['POST',   '/documents',                 '문서 저장'],
       ['GET',    '/documents/{documentId}',    '문서 조회'],
@@ -442,6 +529,7 @@ const SERVICES = [
   {
     name: '트랜잭션 이벤트 (Transactional Events)',
     base: '/rest/apigateway',
+    specFile: 'APIGatewayTransactionalEvent.json',
     apis: [
       ['GET', '/transactionalEvents/_count',  '조건별 트랜잭션 이벤트 건수 조회'],
       ['GET', '/transactionalEvents/_search', '조건별 트랜잭션 이벤트 상세 목록 조회'],
@@ -450,6 +538,7 @@ const SERVICES = [
   {
     name: '헬스체크 (Availability)',
     base: '/rest/apigateway/health',
+    specFile: 'APIGatewayAvailability.json',
     apis: [
       ['GET', '/admin',            '관리 기능 헬스체크 (UI, Kibana)'],
       ['GET', '/all',              '전체 컴포넌트 헬스체크'],
@@ -460,6 +549,7 @@ const SERVICES = [
   {
     name: '공개 서비스 (Public Services)',
     base: '/rest/pub/apigateway',
+    specFile: 'APIGatewayPublicServices.json',
     apis: [
       ['GET', '/jwt/certs',           'JWKS URI — API Gateway 공개 키 목록 조회'],
       ['GET', '/jwt/getJsonWebToken', 'API Gateway에서 JWT 토큰 발급'],
@@ -468,6 +558,7 @@ const SERVICES = [
   {
     name: '내부 서비스 (Internal Service)',
     base: '/{gateway}',
+    specFile: 'APIGatewayInternalService.json',
     apis: [
       ['POST', '/security/exchangeIDToken',  'ID Token을 액세스 토큰으로 교환'],
       ['POST', '/security/getJsonWebToken',  '커스텀 클레임으로 JWT 생성'],
@@ -475,9 +566,176 @@ const SERVICES = [
   },
 ];
 
-// ── 메서드 → CSS 클래스 ──
+/* ── 스펙 캐시 ── */
+const specCache = {};
+
+async function loadSpec(filename) {
+  if (specCache[filename]) return specCache[filename];
+  const res = await fetch(`${PROXY}/api/spec/${filename}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const spec = await res.json();
+  specCache[filename] = spec;
+  return spec;
+}
+
+/* ── 스펙에서 해당 경로의 operation 찾기 ── */
+function findOperations(spec, method, path) {
+  const methods = method.split('/').map(m => m.trim().toLowerCase()).filter(Boolean);
+  const pathObj = spec.paths?.[path];
+  if (!pathObj) return null;
+  const result = {};
+  for (const m of methods) {
+    if (pathObj[m]) result[m.toUpperCase()] = pathObj[m];
+  }
+  return Object.keys(result).length ? result : null;
+}
+
+/* ── 타입 문자열 추출 ── */
+function typeStr(p) {
+  if (p.type) return p.type + (p.format ? ` (${p.format})` : '') + (p.enum ? ` [${p.enum.join('|')}]` : '');
+  if (p.schema) {
+    if (p.schema.$ref) return p.schema.$ref.split('/').pop();
+    if (p.schema.type) return p.schema.type;
+  }
+  return '-';
+}
+
+/* ── 응답 스키마 문자열 ── */
+function schemaStr(resp) {
+  if (!resp.schema) return '-';
+  if (resp.schema.$ref) return resp.schema.$ref.split('/').pop();
+  if (resp.schema.type === 'array' && resp.schema.items?.$ref)
+    return `Array<${resp.schema.items.$ref.split('/').pop()}>`;
+  return resp.schema.type || '-';
+}
+
+/* ── 파라미터 섹션 HTML ── */
+function renderParams(params) {
+  if (!params || !params.length) return '';
+  const rows = params.map(p => `
+    <tr>
+      <td>${p.name || ''}</td>
+      <td><span class="in-badge in-${p.in || ''}">${p.in || ''}</span></td>
+      <td>${p.required ? '<span class="req-badge">필수</span>' : ''}</td>
+      <td>${typeStr(p)}</td>
+      <td class="param-desc">${p.description || ''}</td>
+    </tr>`).join('');
+  return `
+    <div class="detail-section">
+      <div class="detail-section-hdr" onclick="toggleSec(this)">
+        📥 파라미터 <span style="font-weight:400;color:var(--color-text-muted);font-size:0.75rem;">(${params.length}개)</span>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="detail-section-body">
+        <table class="param-table">
+          <thead><tr><th>이름</th><th>위치</th><th>필수</th><th>타입</th><th>설명</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── 응답 섹션 HTML ── */
+function renderResponses(responses) {
+  if (!responses) return '';
+  const entries = Object.entries(responses);
+  if (!entries.length) return '';
+  const rows = entries.map(([code, resp]) => {
+    const cls = code.startsWith('2') ? 'code-2xx' : code.startsWith('3') ? 'code-3xx' : code.startsWith('4') ? 'code-4xx' : 'code-5xx';
+    return `
+      <tr>
+        <td><span class="status-code ${cls}">${code}</span></td>
+        <td class="param-desc">${resp.description || ''}</td>
+        <td class="schema-ref">${schemaStr(resp)}</td>
+      </tr>`;
+  }).join('');
+  return `
+    <div class="detail-section">
+      <div class="detail-section-hdr" onclick="toggleSec(this)">
+        📤 응답 <span style="font-weight:400;color:var(--color-text-muted);font-size:0.75rem;">(${entries.length}개)</span>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="detail-section-body">
+        <table class="param-table">
+          <thead><tr><th>코드</th><th>설명</th><th>스키마</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ── 상세 내용 렌더링 ── */
+function renderDetail(ops) {
+  if (!ops) return '<div class="detail-na">이 엔드포인트의 상세 정보가 스펙에 없습니다.</div>';
+  let html = '';
+  const entries = Object.entries(ops);
+  for (const [m, op] of entries) {
+    html += '<div class="op-block">';
+    if (entries.length > 1) {
+      html += `<div class="op-method-label"><span class="method ${methodClass(m)}">${m}</span></div>`;
+    }
+    html += renderParams(op.parameters);
+    html += renderResponses(op.responses);
+    html += '</div>';
+  }
+  return html;
+}
+
+/* ── 섹션 접기/펼치기 ── */
+function toggleSec(hdr) {
+  const body = hdr.nextElementSibling;
+  const icon = hdr.querySelector('.collapse-icon');
+  const collapsed = body.style.display === 'none';
+  body.style.display = collapsed ? '' : 'none';
+  icon.textContent = collapsed ? '▼' : '▶';
+}
+
+/* ── 행 클릭 → 상세 토글 ── */
+let openDetailId = null;
+
+async function toggleDetail(row, si, ri) {
+  const id = `dr-${si}-${ri}`;
+  const detailRow = document.getElementById(id);
+  const isOpen = openDetailId === id;
+
+  // 현재 열린 것 닫기
+  if (openDetailId) {
+    const prev = document.getElementById(openDetailId);
+    if (prev) prev.style.display = 'none';
+    document.querySelectorAll('.api-row.active').forEach(r => r.classList.remove('active'));
+    openDetailId = null;
+  }
+
+  if (isOpen) return; // 같은 행 클릭 → 닫기만
+
+  row.classList.add('active');
+  detailRow.style.display = '';
+  openDetailId = id;
+
+  const content = detailRow.querySelector('.detail-content');
+  if (content.dataset.loaded) return; // 이미 로드됨
+
+  const svc = SERVICES[si];
+  const [method, path] = svc.apis[ri];
+  content.innerHTML = '<div class="detail-loading">⏳ 스펙 로딩 중…</div>';
+
+  try {
+    const spec = await loadSpec(svc.specFile);
+    const ops = findOperations(spec, method, path);
+    content.innerHTML = renderDetail(ops);
+    content.dataset.loaded = '1';
+  } catch {
+    content.innerHTML = `
+      <div class="detail-error">
+        ⚠️ 스펙을 불러오지 못했습니다. 프록시 서버를 실행하면 파라미터·응답 정보를 볼 수 있습니다.<br>
+        <code style="font-size:0.8rem;font-family:var(--font-mono);">cd server &amp;&amp; npm start</code>
+      </div>`;
+  }
+}
+
+/* ── 메서드 CSS 클래스 ── */
 function methodClass(m) {
-  const u = m.toUpperCase();
+  const u = (m || '').split('/')[0].toUpperCase();
   if (u === 'GET')    return 'm-get';
   if (u === 'POST')   return 'm-post';
   if (u === 'PUT')    return 'm-put';
@@ -486,9 +744,9 @@ function methodClass(m) {
   return 'm-multi';
 }
 
-// ── 렌더링 ──
-const container = document.getElementById('container');
-const collapsed  = {};
+/* ── 렌더링 ── */
+const container  = document.getElementById('container');
+const svcCollapsed = {};
 
 SERVICES.forEach((svc, si) => {
   const section = document.createElement('div');
@@ -513,15 +771,35 @@ SERVICES.forEach((svc, si) => {
   table.id = `t-${si}`;
 
   svc.apis.forEach(([method, path, desc], ri) => {
+    // API 행
     const tr = document.createElement('tr');
+    tr.className = 'api-row';
     tr.dataset.method = method.toLowerCase();
     tr.dataset.path   = path.toLowerCase();
-    tr.dataset.desc   = desc;
+    tr.dataset.desc   = desc.toLowerCase();
     tr.innerHTML = `
       <td><span class="method ${methodClass(method)}">${method}</span></td>
       <td>${path}</td>
-      <td>${desc}</td>`;
+      <td>${desc}</td>
+      <td id="exp-${si}-${ri}">▶</td>`;
+    tr.addEventListener('click', () => {
+      const expIcon = document.getElementById(`exp-${si}-${ri}`);
+      const wasOpen = openDetailId === `dr-${si}-${ri}`;
+      // 모든 expand 아이콘 초기화
+      document.querySelectorAll('[id^="exp-"]').forEach(e => { e.textContent = '▶'; });
+      toggleDetail(tr, si, ri);
+      if (!wasOpen) expIcon.textContent = '▼';
+    });
+
+    // 상세 행
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'detail-row';
+    detailTr.id = `dr-${si}-${ri}`;
+    detailTr.style.display = 'none';
+    detailTr.innerHTML = `<td colspan="4"><div class="detail-content"></div></td>`;
+
     table.appendChild(tr);
+    table.appendChild(detailTr);
   });
 
   tableWrap.appendChild(table);
@@ -530,13 +808,14 @@ SERVICES.forEach((svc, si) => {
   container.appendChild(section);
 });
 
+/* ── 서비스 섹션 접기 ── */
 function toggleSection(si) {
-  collapsed[si] = !collapsed[si];
-  document.getElementById(`tw-${si}`).style.display = collapsed[si] ? 'none' : '';
-  document.getElementById(`ci-${si}`).textContent = collapsed[si] ? '▶' : '▼';
+  svcCollapsed[si] = !svcCollapsed[si];
+  document.getElementById(`tw-${si}`).style.display = svcCollapsed[si] ? 'none' : '';
+  document.getElementById(`ci-${si}`).textContent   = svcCollapsed[si] ? '▶' : '▼';
 }
 
-// ── 검색 ──
+/* ── 검색 ── */
 function highlight(text, q) {
   if (!q) return text;
   return text.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
@@ -547,36 +826,46 @@ function doSearch(raw) {
   const q = raw.trim().toLowerCase();
   let total = 0;
 
+  // 검색 시 상세 패널 닫기
+  if (q) {
+    document.querySelectorAll('.detail-row').forEach(dr => { dr.style.display = 'none'; });
+    document.querySelectorAll('.api-row').forEach(r => r.classList.remove('active'));
+    document.querySelectorAll('[id^="exp-"]').forEach(e => { e.textContent = '▶'; });
+    openDetailId = null;
+  }
+
   SERVICES.forEach((svc, si) => {
-    const rows = document.querySelectorAll(`#t-${si} tr`);
+    const rows = [...document.querySelectorAll(`#t-${si} .api-row`)];
     let svcMatch = 0;
 
     rows.forEach((tr, ri) => {
       const api    = svc.apis[ri];
       const method = api[0].toLowerCase();
       const path   = api[1].toLowerCase();
-      const desc   = api[2];
-      const hit    = !q || method.includes(q) || path.includes(q) || desc.toLowerCase().includes(q);
+      const desc   = api[2].toLowerCase();
+      const hit    = !q || method.includes(q) || path.includes(q) || desc.includes(q);
 
       tr.classList.toggle('hidden', !hit);
+      const detailRow = document.getElementById(`dr-${si}-${ri}`);
+      if (detailRow) detailRow.classList.toggle('hidden', !hit);
+
       if (hit) {
         svcMatch++;
         tr.cells[0].innerHTML = `<span class="method ${methodClass(api[0])}">${highlight(api[0], raw.trim())}</span>`;
         tr.cells[1].innerHTML = highlight(api[1], raw.trim());
-        tr.cells[2].innerHTML = highlight(desc, raw.trim());
+        tr.cells[2].innerHTML = highlight(api[2], raw.trim());
+        tr.cells[3].innerHTML = '▶';
       }
     });
 
     total += svcMatch;
-
     const section = document.querySelector(`.service-section[data-si="${si}"]`);
     if (!q) {
       section.style.display = '';
-      if (collapsed[si]) document.getElementById(`tw-${si}`).style.display = 'none';
-      else               document.getElementById(`tw-${si}`).style.display = '';
+      document.getElementById(`tw-${si}`).style.display = svcCollapsed[si] ? 'none' : '';
     } else {
       section.style.display = svcMatch ? '' : 'none';
-      document.getElementById(`tw-${si}`).style.display = svcMatch ? '' : 'none';
+      if (svcMatch) document.getElementById(`tw-${si}`).style.display = '';
     }
   });
 

@@ -1,4 +1,4 @@
-# SessionEnd 훅 (Windows / PowerShell 버전)
+﻿# SessionEnd 훅 (Windows / PowerShell 버전)
 # PostToolUse 훅(append-tool-log.ps1)이 쌓아둔 "세션별 변경 로그"와
 # transcript(대화 내용)를 함께 Claude에게 넘겨 자연어로 요약시키고,
 # <프로젝트 루트>\worklog.md 에 append 한다. 요약 후 세션별 임시 로그는 삭제한다.
@@ -11,6 +11,8 @@
 # 전제: claude CLI가 PATH에 등록되어 있어야 함 (claude -p 재호출)
 
 $ErrorActionPreference = "SilentlyContinue"
+[Console]::InputEncoding  = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 # --- 재귀 방지 ---------------------------------------------------------
 # 아래에서 claude -p 를 다시 호출하는데, 그 호출도 세션이므로 SessionEnd 훅이
@@ -100,7 +102,14 @@ $changesDisplay
 "@
 
 $env:WORK_LOG_HOOK_RUNNING = "1"
+$savedOutputEncoding    = [Console]::OutputEncoding
+$savedOutputEncodingVar = $OutputEncoding
+[Console]::InputEncoding  = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding           = [System.Text.Encoding]::UTF8
 $summary = & claude -p $prompt 2>$null
+[Console]::OutputEncoding = $savedOutputEncoding
+$OutputEncoding           = $savedOutputEncodingVar
 Remove-Item Env:\WORK_LOG_HOOK_RUNNING -ErrorAction SilentlyContinue
 
 if (-not $summary) {
@@ -111,21 +120,23 @@ if (-not $summary) {
 $today = Get-Date -Format "yyyy-MM-dd"
 $now = Get-Date -Format "HH:mm"
 
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+
 $maxRetry = 20
 for ($i = 0; $i -lt $maxRetry; $i++) {
     try {
         if (-not (Test-Path $logFile)) {
-            New-Item -ItemType File -Path $logFile -Force | Out-Null
+            [System.IO.File]::WriteAllText($logFile, "", $utf8NoBom)
         }
-        $existing = Get-Content -Path $logFile -Raw -Encoding utf8 -ErrorAction SilentlyContinue
+        $existing = [System.IO.File]::ReadAllText($logFile, $utf8NoBom)
         if (-not $existing) { $existing = "" }
 
+        $append = ""
         if ($existing -notmatch "(?m)^## $today") {
-            Add-Content -Path $logFile -Value "`n## $today" -Encoding utf8 -ErrorAction Stop
+            $append += "`n## $today"
         }
-
-        Add-Content -Path $logFile -Value "`n### $now" -Encoding utf8 -ErrorAction Stop
-        Add-Content -Path $logFile -Value "$summary" -Encoding utf8 -ErrorAction Stop
+        $append += "`n### $now`n$summary`n"
+        [System.IO.File]::AppendAllText($logFile, $append, $utf8NoBom)
         break
     } catch {
         Start-Sleep -Milliseconds 100

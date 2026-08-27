@@ -55,6 +55,29 @@ app.get('/api/connections', (req, res) => {
   }
 });
 
+// ── API Gateway 스펙 파일 서빙 ─────────────────────────────
+// GET /api/spec/:filename  →  ../apigw_api_mgmt/api_spec/:filename 반환
+const SPEC_DIR = path.join(__dirname, '..', 'apigw_api_mgmt', 'api_spec');
+
+app.get('/api/spec/:filename', (req, res) => {
+  const safe = path.basename(req.params.filename);   // 경로 탐색 방지
+  if (!safe.endsWith('.json')) {
+    return res.status(400).json({ error: 'JSON files only' });
+  }
+  const specPath = path.join(SPEC_DIR, safe);
+  try {
+    const content = fs.readFileSync(specPath, 'utf8');
+    res.setHeader('Content-Type', 'application/json');
+    res.send(content);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      res.status(404).json({ error: `Spec file not found: ${safe}` });
+    } else {
+      res.status(500).json({ error: err.message });
+    }
+  }
+});
+
 // ── Keycloak 토큰 발급 프록시 ──────────────────────────────
 // POST /proxy/keycloak/:env  (env = dev | prod)
 app.post('/proxy/keycloak/:env', async (req, res) => {

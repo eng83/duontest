@@ -99,6 +99,35 @@
       padding: 0 16px;
     }
 
+    /* ── 환경 라디오 그룹 ── */
+    .env-radio-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 8px 0 4px;
+    }
+    .env-radio {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      color: var(--color-text);
+    }
+    .env-radio input[type="radio"] { cursor: pointer; }
+    .env-filename-preview {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+    .env-filename-preview code {
+      font-family: var(--font-mono);
+      background: var(--color-panel-header);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--color-text);
+    }
+
     /* ── 다크 오버라이드 ── */
     [data-theme="dark"] .json-status.valid { color: #4ade80; }
     [data-theme="dark"] .error-msg         { background: #450a0a; border-color: #7f1d1d; color: #fca5a5; }
@@ -138,6 +167,14 @@
           <label>이동할 경로 Prefix (서버 URL로 합칠 경로)</label>
           <input type="text" v-model="prefix" placeholder="예) /api/tt48/public" />
         </div>
+      </div>
+      <div class="field" style="margin-bottom:16px;">
+        <label>환경 (파일명에 포함)</label>
+        <div class="env-radio-group">
+          <label class="env-radio"><input type="radio" v-model="env" value="dev"> 개발</label>
+          <label class="env-radio"><input type="radio" v-model="env" value="prod"> 운영</label>
+        </div>
+        <div class="env-filename-preview" v-if="convertedJson">저장 파일명: <code>{{ previewFilename }}</code></div>
       </div>
 
       <div class="section-header" style="margin-top:4px;" @click="jsonPasteCollapsed = !jsonPasteCollapsed">
@@ -209,6 +246,7 @@
         fetchError: '',
         jsonPasteCollapsed: false,
         resultCollapsed: false,
+        env: 'dev',
       };
     },
 
@@ -263,6 +301,9 @@
         if (!this.convertedJson || !this.convertedJson.paths) return 0;
         return Object.keys(this.convertedJson.paths).length;
       },
+      previewFilename() {
+        return this.buildFilename();
+      },
     },
 
     methods: {
@@ -278,6 +319,7 @@
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           this.inputJson = JSON.stringify(await res.json(), null, 2);
           this.validateJson();
+          this.applyEnvFromUrl(url);
           this.isFetching = false;
           return;
         } catch (e) {
@@ -286,7 +328,7 @@
 
         // 2차: 로컬 프록시 서버 경유
         try {
-          const res = await fetch(`${window.WEB_TOOLS_PROXY || 'http://localhost:3000'}/proxy/fetch-json`, {
+          const res = await fetch(`${window.WEB_TOOLS_PROXY || 'http://localhost:9090'}/proxy/fetch-json`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url }),
@@ -297,6 +339,7 @@
           }
           this.inputJson = JSON.stringify(await res.json(), null, 2);
           this.validateJson();
+          this.applyEnvFromUrl(url);
         } catch (e) {
           this.fetchError = `가져오기 실패: ${e.message}. CORS 차단된 URL은 프록시 서버(server/)가 필요합니다. (cd server && npm start)`;
         }
@@ -319,6 +362,9 @@
             this.newHost = servers[0].url;
           } else if (Array.isArray(servers) && servers.length > 1) {
             this.newHost = '';
+          }
+          if (Array.isArray(servers) && servers.length >= 1 && servers[0].url) {
+            this.applyEnvFromUrl(servers[0].url);
           }
         } catch (e) {
           this.jsonStatus = 'invalid';
@@ -392,8 +438,16 @@
         ).join('\n');
       },
 
-      download() {
-        if (!this.convertedJson) return;
+      applyEnvFromUrl(url) {
+        try {
+          const { hostname } = new URL(url);
+          this.env = hostname.startsWith('dev-') ? 'dev' : 'prod';
+        } catch {
+          // URL 파싱 실패 시 현재 선택 유지
+        }
+      },
+
+      buildFilename() {
         const today = new Date();
         const dateStr = today.getFullYear().toString()
           + String(today.getMonth() + 1).padStart(2, '0')
@@ -402,7 +456,14 @@
         const mid  = parts[1] || parts[0] || 'converted';
         const last = parts[parts.length - 1];
         const tag  = (last && last !== mid) ? `${mid}-${last}` : mid;
-        const filename = `${dateStr}-${tag}-${this.convertedPathCount}.json`;
+        const count = this.convertedPathCount;
+        const envPart = this.env ? `-${this.env}` : '';
+        return `${dateStr}${envPart}-${tag}-${count}.json`;
+      },
+
+      download() {
+        if (!this.convertedJson) return;
+        const filename = this.buildFilename();
 
         const blob = new Blob([JSON.stringify(this.convertedJson, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe",
+            "command": "pwsh.exe",
             "args": [
               "-NoProfile",
               "-ExecutionPolicy",
@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe",
+            "command": "pwsh.exe",
             "args": [
               "-NoProfile",
               "-ExecutionPolicy",

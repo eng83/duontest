@@ -512,8 +512,12 @@
                   <input v-model="editForm.apiVersion" type="text" />
                 </div>
                 <div class="field">
-                  <label>Native Endpoint URI</label>
-                  <input v-model="editForm.endpointUri" type="text" placeholder="https://api.example.com" />
+                  <label style="display:flex;align-items:center;gap:4px;">
+                    Native Endpoint URI
+                    <span style="font-size:0.72rem;color:var(--color-text-muted);font-weight:400;" title="스펙 파일 내 servers[0].url 또는 host+basePath에서 자동 감지됩니다. API Gateway가 스펙 파일에서 직접 읽으므로 이 값을 변경해도 업로드에 반영되지 않습니다.">(스펙에서 감지, 참고용)</span>
+                  </label>
+                  <input v-model="editForm.endpointUri" type="text" readonly
+                         style="background:var(--color-panel-header);color:var(--color-text-muted);cursor:default;" />
                 </div>
                 <div class="field full">
                   <label>설명</label>
@@ -579,8 +583,12 @@
                   <textarea v-model="addForm.apiDescription" rows="2"></textarea>
                 </div>
                 <div class="field full">
-                  <label>Native Endpoint URI</label>
-                  <input v-model="addForm.endpointUri" type="text" placeholder="https://api.example.com" />
+                  <label style="display:flex;align-items:center;gap:4px;">
+                    Native Endpoint URI
+                    <span style="font-size:0.72rem;color:var(--color-text-muted);font-weight:400;" title="스펙 파일 내 servers[0].url 또는 host+basePath에서 자동 감지됩니다. API Gateway가 스펙 파일에서 직접 읽으므로 이 값을 변경해도 업로드에 반영되지 않습니다.">(스펙에서 감지, 참고용)</span>
+                  </label>
+                  <input v-model="addForm.endpointUri" type="text" readonly
+                         style="background:var(--color-panel-header);color:var(--color-text-muted);cursor:default;" />
                 </div>
               </div>
             </template>
@@ -607,7 +615,7 @@
 
 <script>
 const { createApp, ref, computed, reactive, onMounted } = Vue;
-const PROXY = window.WEB_TOOLS_PROXY || 'http://localhost:3000';
+const PROXY = window.WEB_TOOLS_PROXY || 'http://localhost:9090';
 
 createApp({
   setup() {
@@ -727,7 +735,7 @@ createApp({
         addMode.value = false;
       } catch (e) {
         if (e.name === 'TypeError' && e.message.includes('fetch')) {
-          errorMsg.value = '프록시 서버에 연결할 수 없습니다. server/ 폴더에서 npm start를 먼저 실행해주세요. (localhost:3000)';
+          errorMsg.value = '프록시 서버에 연결할 수 없습니다. server/ 폴더에서 npm start를 먼저 실행해주세요. (localhost:9090)';
         } else {
           errorMsg.value = e.message;
         }
@@ -780,7 +788,7 @@ createApp({
       actionLoading.value = true;
       actionError.value   = '';
       try {
-        await apigwFetch(`/apis/${selectedApi.value.id}`, 'DELETE');
+        await apigwFetch(`/apis/${selectedApi.value.id}?forceDelete=true`, 'DELETE');
         selectedApi.value = null;
         await refreshList();
       } catch (e) {

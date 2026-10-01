@@ -109,13 +109,17 @@ app.post('/proxy/fetch-json', async (req, res) => {
     return res.status(400).json({ error: 'url is required' });
   }
 
+  console.log(`[fetch-json] GET ${url}`);
   try {
     const upstream = await fetch(url, {
       headers: { 'Accept': 'application/json' },
     });
 
+    console.log(`[fetch-json] → ${upstream.status} ${upstream.statusText}`);
     if (!upstream.ok) {
-      return res.status(upstream.status).json({ error: `Upstream returned ${upstream.status}` });
+      const body = await upstream.text().catch(() => '');
+      console.error(`[fetch-json] upstream error body:`, body.slice(0, 300));
+      return res.status(upstream.status).json({ error: `Upstream returned ${upstream.status}`, detail: body.slice(0, 300) });
     }
 
     const data = await upstream.json();
